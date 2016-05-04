@@ -1,0 +1,35 @@
+{
+  "name": "OvnionPanel",
+  "version": "0.1.0",
+  "description": "Panel de control OvniOn",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "http-server -p 8081 & watchify src/index.js -o build/bundle.js & livereload build -u true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ovnion/Web-OvnionPanel-Front.git"
+  },
+  "keywords": [
+    "yo-yo",
+    "virtualdom"
+  ],
+  "author": "OvniOn.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ovnion/Web-OvnionPanel-Front/issues"
+  },
+  "homepage": "https://github.com/ovnion/Web-OvnionPanel-Front#readme",
+  "dependencies": {
+    "material-design-lite": "^1.1.3",
+    "yo-yo": "^1.2.0"
+  },
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "http-server": "^0.9.0",
+    "livereload": "^0.4.1",
+    "watch": "^0.18.0",
+    "watchify": "^3.7.0"
+  }
+}
