@@ -1,8 +1,13 @@
 var yo = require('yo-yo')
+var styles = require('./login-css.js')
+
+var mc = styles['mdl-card']
+var mct = styles['mdl-card__title']
 
 module.exports = function login (text) {
- return yo`<div class="login"><div class="demo-card-square mdl-card mdl-shadow--2dp">
-  <div class="mdl-card__title mdl-card--expand">
+  console.log(styles)
+ return yo`<div class="login"><div class="demo-card-square ${mc} mdl-shadow--2dp">
+  <div class="${mct} mdl-card--expand">
     <h2 class="mdl-card__title-text">${text}</h2>
   </div>
   <div class="mdl-card__supporting-text">
