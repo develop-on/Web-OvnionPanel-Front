@@ -28,9 +28,13 @@
   },
   "devDependencies": {
     "browserify": "^13.0.0",
+    "csjs-injectify": "^1.0.0",
     "http-server": "^0.9.0",
     "livereload": "^0.4.1",
     "watch": "^0.18.0",
     "watchify": "^3.7.0"
+  }
+  "browserify": {
+    "transforms": ["csjs-injectify"]
   }
 }
