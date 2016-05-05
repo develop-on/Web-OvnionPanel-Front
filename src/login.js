@@ -24,3 +24,4 @@ module.exports = function login (text) {
   </div>
 </div></div>`	
 }
+
