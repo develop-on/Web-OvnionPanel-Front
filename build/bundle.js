@@ -1415,10 +1415,10 @@ var login = lg('OvniOn Panel')
 var styles = require('./login-css.js')
 
 
-csjs.getCss(styles);
+getCss(styles);
 document.body.appendChild(login)
 },{"./login-css.js":23,"./login.js":24,"csjs":5,"csjs/get-css":4,"yo-yo":20}],23:[function(require,module,exports){
-const csjs = require('csjs');
+var csjs = require('csjs');
 
 module.exports = csjs`
 

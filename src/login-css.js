@@ -1,4 +1,4 @@
-const csjs = require('csjs');
+var csjs = require('csjs');
 
 module.exports = csjs`
 
