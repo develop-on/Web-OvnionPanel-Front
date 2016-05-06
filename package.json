@@ -33,7 +33,7 @@
     "livereload": "^0.4.1",
     "watch": "^0.18.0",
     "watchify": "^3.7.0"
-  }
+  },
   "browserify": {
     "transforms": ["csjs-injectify"]
   }
