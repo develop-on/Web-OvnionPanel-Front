@@ -7,8 +7,8 @@ var mct = styles['mdl-card__title']
 module.exports = function login (text) {
   console.log(styles)
  return yo`<div class="login"><div class="demo-card-square ${mc} mdl-shadow--2dp">
-  <div class="${mct} mdl-card--expand">
-    <h2 class="mdl-card__title-text">${text}</h2>
+  <div class="demo-card-square > ${mct} ${mc}--expand">
+    <h2 class="${mct}-text">${text}</h2>
   </div>
   <div class="mdl-card__supporting-text">
 <form action="#">

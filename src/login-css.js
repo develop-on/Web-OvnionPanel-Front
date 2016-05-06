@@ -4,11 +4,13 @@ module.exports = csjs`
 
  .mdl-card {
    width: 320px;
-   height: 320px;
+   background: white;
  }
  .mdl-card__title {
-   color: #fff;
-   background: #46B6AC;
+  color: #fff;
+  height: 176px;
+  background: url('img/ovnionpanel.jpg') center / cover;
+
  }
 
 `;

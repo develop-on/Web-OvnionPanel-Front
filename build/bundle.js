@@ -1464,10 +1464,45 @@ module.exports = [
 },{}],27:[function(require,module,exports){
 var yo = require('yo-yo')
 var lg = require('./login.js')
-var login = lg('OvniOn Panels')
+var login = lg('')
 
 
-var div = yo`<div id="contenedor">${login}</div>`
+var div = (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel1 = document.createElement("div")
+bel1.setAttribute("id", "container")
+var bel0 = document.createElement("div")
+bel0.setAttribute("class", "center")
+appendChild(bel0, [arguments[0]])
+appendChild(bel1, [bel0])
+          return bel1
+        }(login))
 document.body.appendChild(div)
 },{"./login.js":29,"yo-yo":25}],28:[function(require,module,exports){
 var csjs = require('csjs-injectify/csjs-inject');
@@ -1476,11 +1511,13 @@ module.exports = csjs`
 
  .mdl-card {
    width: 320px;
-   height: 320px;
+   background: white;
  }
  .mdl-card__title {
-   color: #fff;
-   background: #46B6AC;
+  color: #fff;
+  height: 176px;
+  background: url('img/ovnionpanel.jpg') center / cover;
+
  }
 
 `;
@@ -1494,28 +1531,82 @@ var mct = styles['mdl-card__title']
 
 module.exports = function login (text) {
   console.log(styles)
- return yo`<div class="login"><div class="demo-card-square ${mc} mdl-shadow--2dp">
-  <div class="${mct} mdl-card--expand">
-    <h2 class="mdl-card__title-text">${text}</h2>
-  </div>
-  <div class="mdl-card__supporting-text">
-<form action="#">
-  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-    <input class="mdl-textfield__input" type="text" id="sample3">
-    <label class="mdl-textfield__label" for="sample3">Usuario</label>
-  </div>
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-    <input class="mdl-textfield__input" type="text" id="sample3">
-    <label class="mdl-textfield__label" for="sample3">Contraseña</label>
-  </div>
-</form>
-  </div>
-  <div class="mdl-card__actions mdl-card--border">
-    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-     Login
-    </a>
-  </div>
-</div></div>`	
+ return (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel13 = document.createElement("div")
+bel13.setAttribute("class", "login")
+var bel12 = document.createElement("div")
+bel12.setAttribute("class", "demo-card-square " + arguments[3] + " mdl-shadow--2dp")
+var bel1 = document.createElement("div")
+bel1.setAttribute("class", "demo-card-square > " + arguments[2] + " ")
+var bel0 = document.createElement("h2")
+bel0.setAttribute("class", arguments[0] + "-text")
+appendChild(bel0, [arguments[1]])
+appendChild(bel1, ["\n    ",bel0,"\n  "])
+var bel9 = document.createElement("div")
+bel9.setAttribute("class", "mdl-card__supporting-text")
+var bel8 = document.createElement("form")
+bel8.setAttribute("action", "#")
+var bel4 = document.createElement("div")
+bel4.setAttribute("class", "mdl-textfield mdl-js-textfield mdl-textfield--floating-label")
+var bel2 = document.createElement("input")
+bel2.setAttribute("type", "text")
+bel2.setAttribute("id", "sample3")
+bel2.setAttribute("class", "mdl-textfield__input")
+var bel3 = document.createElement("label")
+bel3.setAttribute("class", "mdl-textfield__label")
+bel3.setAttribute("htmlFor", "sample3")
+appendChild(bel3, ["Usuario"])
+appendChild(bel4, ["\n    ",bel2,"\n    ",bel3,"\n  "])
+var bel7 = document.createElement("div")
+bel7.setAttribute("class", "mdl-textfield mdl-js-textfield mdl-textfield--floating-label")
+var bel5 = document.createElement("input")
+bel5.setAttribute("type", "text")
+bel5.setAttribute("id", "sample3")
+bel5.setAttribute("class", "mdl-textfield__input")
+var bel6 = document.createElement("label")
+bel6.setAttribute("class", "mdl-textfield__label")
+bel6.setAttribute("htmlFor", "sample3")
+appendChild(bel6, ["Contraseña"])
+appendChild(bel7, ["\n    ",bel5,"\n    ",bel6,"\n  "])
+appendChild(bel8, ["\n  ",bel4,"\n    ",bel7,"\n"])
+appendChild(bel9, ["\n",bel8,"\n  "])
+var bel11 = document.createElement("div")
+bel11.setAttribute("class", "mdl-card__actions mdl-card--border")
+var bel10 = document.createElement("a")
+bel10.setAttribute("class", "mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect")
+appendChild(bel10, ["\n     Login\n    "])
+appendChild(bel11, ["\n    ",bel10,"\n  "])
+appendChild(bel12, ["\n  ",bel1,"\n  ",bel9,"\n  ",bel11,"\n"])
+appendChild(bel13, [bel12])
+          return bel13
+        }(mct,text,mct,mc))	
 }
 
 

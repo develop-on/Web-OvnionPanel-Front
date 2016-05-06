@@ -1,7 +1,7 @@
 var yo = require('yo-yo')
 var lg = require('./login.js')
-var login = lg('OvniOn Panels')
+var login = lg('')
 
 
-var div = yo`<div id="contenedor">${login}</div>`
+var div = yo`<div id="container"><div class="center">${login}</div></div>`
 document.body.appendChild(div)
