@@ -119,19 +119,33 @@ function belCreateElement (tag, props, children) {
 module.exports = hyperx(belCreateElement)
 module.exports.createElement = belCreateElement
 
-},{"global/document":16,"hyperx":18}],2:[function(require,module,exports){
+},{"global/document":20,"hyperx":22}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
+(function (global){
 'use strict';
 
-module.exports = require('./lib/csjs');
+var csjs = require('csjs');
+var insertCss = require('insert-css');
 
-},{"./lib/csjs":9}],4:[function(require,module,exports){
+function csjsInserter() {
+  var args = Array.prototype.slice.call(arguments);
+  var result = csjs.apply(null, args);
+  if (global.document) {
+    insertCss(csjs.getCss(result));
+  }
+  return result;
+}
+
+module.exports = csjsInserter;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"csjs":9,"insert-css":23}],4:[function(require,module,exports){
 'use strict';
 
-module.exports = require('./lib/get-css');
+module.exports = require('csjs/get-css');
 
-},{"./lib/get-css":12}],5:[function(require,module,exports){
+},{"csjs/get-css":8}],5:[function(require,module,exports){
 'use strict';
 
 var csjs = require('./csjs');
@@ -141,6 +155,23 @@ module.exports.csjs = csjs;
 module.exports.getCss = require('./get-css');
 
 },{"./csjs":3,"./get-css":4}],6:[function(require,module,exports){
+'use strict';
+
+module.exports = require('csjs-inject');
+
+},{"csjs-inject":5}],7:[function(require,module,exports){
+'use strict';
+
+module.exports = require('./lib/csjs');
+
+},{"./lib/csjs":13}],8:[function(require,module,exports){
+'use strict';
+
+module.exports = require('./lib/get-css');
+
+},{"./lib/get-css":16}],9:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"./csjs":7,"./get-css":8,"dup":5}],10:[function(require,module,exports){
 'use strict';
 
 /**
@@ -162,7 +193,7 @@ module.exports = function encode(integer) {
   return str;
 };
 
-},{}],7:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 var makeComposition = require('./composition').makeComposition;
@@ -206,7 +237,7 @@ function getClassChain(obj) {
   return acc;
 }
 
-},{"./composition":8}],8:[function(require,module,exports){
+},{"./composition":12}],12:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -274,7 +305,7 @@ function isComposition(value) {
  */
 function Composition() {}
 
-},{}],9:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 var extractExtends = require('./css-extract-extends');
@@ -354,7 +385,7 @@ function without(obj, unwanted) {
   }, {});
 }
 
-},{"./build-exports":7,"./composition":8,"./css-extract-extends":10,"./css-key":11,"./scopeify":15}],10:[function(require,module,exports){
+},{"./build-exports":11,"./composition":12,"./css-extract-extends":14,"./css-key":15,"./scopeify":19}],14:[function(require,module,exports){
 'use strict';
 
 var makeComposition = require('./composition').makeComposition;
@@ -407,7 +438,7 @@ function getClassName(str) {
   return trimmed[0] === '.' ? trimmed.substr(1) : trimmed;
 }
 
-},{"./composition":8}],11:[function(require,module,exports){
+},{"./composition":12}],15:[function(require,module,exports){
 'use strict';
 
 /**
@@ -417,7 +448,7 @@ function getClassName(str) {
 
 module.exports = ' css ';
 
-},{}],12:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 var cssKey = require('./css-key');
@@ -426,7 +457,7 @@ module.exports = function getCss(csjs) {
   return csjs[cssKey];
 };
 
-},{"./css-key":11}],13:[function(require,module,exports){
+},{"./css-key":15}],17:[function(require,module,exports){
 'use strict';
 
 /**
@@ -444,7 +475,7 @@ module.exports = function hashStr(str) {
   return hash >>> 0;
 };
 
-},{}],14:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var encode = require('./base62-encode');
@@ -458,7 +489,7 @@ module.exports = function fileScoper(fileSrc) {
   }
 };
 
-},{"./base62-encode":6,"./hash-string":13}],15:[function(require,module,exports){
+},{"./base62-encode":10,"./hash-string":17}],19:[function(require,module,exports){
 'use strict';
 
 var fileScoper = require('./scoped-name');
@@ -528,7 +559,7 @@ function replaceAnimations(result) {
   return result;
 }
 
-},{"./scoped-name":14}],16:[function(require,module,exports){
+},{"./scoped-name":18}],20:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -547,7 +578,7 @@ if (typeof document !== 'undefined') {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":2}],17:[function(require,module,exports){
+},{"min-document":2}],21:[function(require,module,exports){
 module.exports = attributeToProperty
 
 var transform = {
@@ -568,7 +599,7 @@ function attributeToProperty (h) {
   }
 }
 
-},{}],18:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var attrToProp = require('hyperscript-attribute-to-property')
 
 var VAR = 0, TEXT = 1, OPEN = 2, CLOSE = 3, ATTR = 4
@@ -833,7 +864,31 @@ var closeRE = RegExp('^(' + [
 ].join('|') + ')(?:[\.#][a-zA-Z0-9\u007F-\uFFFF_:-]+)*$')
 function selfClosing (tag) { return closeRE.test(tag) }
 
-},{"hyperscript-attribute-to-property":17}],19:[function(require,module,exports){
+},{"hyperscript-attribute-to-property":21}],23:[function(require,module,exports){
+var inserted = {};
+
+module.exports = function (css, options) {
+    if (inserted[css]) return;
+    inserted[css] = true;
+    
+    var elem = document.createElement('style');
+    elem.setAttribute('type', 'text/css');
+
+    if ('textContent' in elem) {
+      elem.textContent = css;
+    } else {
+      elem.styleSheet.cssText = css;
+    }
+    
+    var head = document.getElementsByTagName('head')[0];
+    if (options && options.prepend) {
+        head.insertBefore(elem, head.childNodes[0]);
+    } else {
+        head.appendChild(elem);
+    }
+};
+
+},{}],24:[function(require,module,exports){
 // Create a range object for efficently rendering strings to elements.
 var range;
 
@@ -1332,7 +1387,7 @@ function morphdom(fromNode, toNode, options) {
 
 module.exports = morphdom;
 
-},{}],20:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var bel = require('bel') // turns template tag into DOM elements
 var morphdom = require('morphdom') // efficiently diffs + morphs two DOM elements
 var defaultEvents = require('./update-events.js') // default events to be copied when dom elements update
@@ -1368,7 +1423,7 @@ module.exports.update = function (fromNode, toNode, opts) {
   }
 }
 
-},{"./update-events.js":21,"bel":1,"morphdom":19}],21:[function(require,module,exports){
+},{"./update-events.js":26,"bel":1,"morphdom":24}],26:[function(require,module,exports){
 module.exports = [
   // attribute events (can be set with attributes)
   'onclick',
@@ -1406,39 +1461,41 @@ module.exports = [
   'onfocusout'
 ]
 
-},{}],22:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var yo = require('yo-yo')
-var csjs = require('csjs')
-var getCss = require('csjs/get-css');
 var lg = require('./login.js')
-var login = lg('OvniOn Panel')
-var styles = require('./login-css.js')
+var login = lg('OvniOn Panels')
 
 
-getCss(styles);
-document.body.appendChild(login)
-},{"./login-css.js":23,"./login.js":24,"csjs":5,"csjs/get-css":4,"yo-yo":20}],23:[function(require,module,exports){
-var csjs = require('csjs');
+var div = yo`<div id="contenedor">${login}</div>`
+document.body.appendChild(div)
+},{"./login.js":29,"yo-yo":25}],28:[function(require,module,exports){
+var csjs = require('csjs-injectify/csjs-inject');
 
 module.exports = csjs`
 
- .demo-card-square.mdl-card {
+ .mdl-card {
    width: 320px;
    height: 320px;
  }
- .demo-card-square > .mdl-card__title {
+ .mdl-card__title {
    color: #fff;
    background: #46B6AC;
  }
 
 `;
-},{"csjs":5}],24:[function(require,module,exports){
+
+},{"csjs-injectify/csjs-inject":6}],29:[function(require,module,exports){
 var yo = require('yo-yo')
-var csjs = require('csjs')
+var styles = require('./login-css.js')
+
+var mc = styles['mdl-card']
+var mct = styles['mdl-card__title']
 
 module.exports = function login (text) {
- return yo`<div class="login"><div class="demo-card-square mdl-card mdl-shadow--2dp">
-  <div class="mdl-card__title mdl-card--expand">
+  console.log(styles)
+ return yo`<div class="login"><div class="demo-card-square ${mc} mdl-shadow--2dp">
+  <div class="${mct} mdl-card--expand">
     <h2 class="mdl-card__title-text">${text}</h2>
   </div>
   <div class="mdl-card__supporting-text">
@@ -1462,4 +1519,4 @@ module.exports = function login (text) {
 }
 
 
-},{"csjs":5,"yo-yo":20}]},{},[22]);
+},{"./login-css.js":28,"yo-yo":25}]},{},[27]);
