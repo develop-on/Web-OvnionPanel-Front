@@ -1463,7 +1463,7 @@ module.exports = [
 
 },{}],27:[function(require,module,exports){
 var yo = require('yo-yo')
-var lg = require('./login.js')
+var lg = require('./modulos/login/login.js')
 var login = lg('')
 
 
@@ -1504,7 +1504,7 @@ appendChild(bel1, [bel0])
           return bel1
         }(login))
 document.body.appendChild(div)
-},{"./login.js":29,"yo-yo":25}],28:[function(require,module,exports){
+},{"./modulos/login/login.js":29,"yo-yo":25}],28:[function(require,module,exports){
 var csjs = require('csjs-injectify/csjs-inject');
 
 module.exports = csjs`

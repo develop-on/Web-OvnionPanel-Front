@@ -1,5 +1,5 @@
 var yo = require('yo-yo')
-var lg = require('./login.js')
+var lg = require('./modulos/login/login.js')
 var login = lg('')
 
 
