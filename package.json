@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "http-server -p 8081 & watchify src/index.js -o build/bundle.js & livereload build -u true"
+    "watch": "cp node_modules/material-design-lite/material.min.css build/css && cp node_modules/material-design-lite/material.min.js build/js && http-server ./build -p 8081 & watchify src/panel.js -o build/bundle.js & livereload build -u true"
   },
   "repository": {
     "type": "git",

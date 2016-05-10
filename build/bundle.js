@@ -1001,51 +1001,6 @@ module.exports = [
 
 },{}],9:[function(require,module,exports){
 var yo = require('yo-yo')
-var ModMenu = require('./modulos/menu/menu.js')
-var ModFooter = require('./modulos/footer/footer.js')
-var footer = ModFooter('Copyright')
-var menu = ModMenu('OvniOn Panel')
-
-
-var div = (function () {
-          function appendChild (el, childs) {
-            for (var i = 0; i < childs.length; i++) {
-              var node = childs[i];
-              if (Array.isArray(node)) {
-                appendChild(el, node)
-                continue
-              }
-              if (typeof node === "number" ||
-                typeof node === "boolean" ||
-                node instanceof Date ||
-                node instanceof RegExp) {
-                node = node.toString()
-              }
-
-              if (typeof node === "string") {
-                if (el.lastChild && el.lastChild.nodeName === "#text") {
-                  el.lastChild.nodeValue += node
-                  continue
-                }
-                node = document.createTextNode(node)
-              }
-
-              if (node && node.nodeType) {
-                el.appendChild(node)
-              }
-            }
-          }
-          var bel1 = document.createElement("div")
-bel1.setAttribute("id", "container")
-var bel0 = document.createElement("div")
-bel0.setAttribute("class", "footer")
-appendChild(bel0, [arguments[0]])
-appendChild(bel1, [arguments[1],bel0])
-          return bel1
-        }(footer,menu))
-document.body.appendChild(div)
-},{"./modulos/footer/footer.js":10,"./modulos/menu/menu.js":11,"yo-yo":7}],10:[function(require,module,exports){
-var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
 // var mc = styles['mdl-card']
@@ -1109,14 +1064,17 @@ appendChild(bel8, ["\n",bel7,"\n"])
 }
 
 
-},{"yo-yo":7}],11:[function(require,module,exports){
+},{"yo-yo":7}],10:[function(require,module,exports){
 var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
 // var mc = styles['mdl-card']
 // var mct = styles['mdl-card__title']
 
-module.exports = function menu (title) {
+function idfy ( title ) {
+  return '#' + title.split(' ').join('').toLowerCase()
+}       
+module.exports = function menu (state) {
 return (function () {
           function appendChild (el, childs) {
             for (var i = 0; i < childs.length; i++) {
@@ -1182,7 +1140,7 @@ var bel7 = document.createElement("a")
 bel7.setAttribute("href", "#scroll-tab-6")
 bel7.setAttribute("class", "mdl-layout__tab")
 appendChild(bel7, ["Modulo 6"])
-appendChild(bel8, ["\n      ",bel2,"\n      ",bel3,"\n      ",bel4,"\n      ",bel5,"\n      ",bel6,"\n      ",bel7,"\n    "])
+appendChild(bel8, ["\n      ",arguments[1],"\n      // ",bel2,"\n      // ",bel3,"\n      // ",bel4,"\n      // ",bel5,"\n      // ",bel6,"\n      // ",bel7,"\n    "])
 appendChild(bel9, ["\n    ",bel1,"\n\n    ",bel8,"\n  "])
 var bel11 = document.createElement("div")
 bel11.setAttribute("class", "mdl-layout__drawer")
@@ -1197,43 +1155,169 @@ bel13.setAttribute("id", "scroll-tab-1")
 bel13.setAttribute("class", "mdl-layout__tab-panel is-active")
 var bel12 = document.createElement("div")
 bel12.setAttribute("class", "page-content")
-appendChild(bel13, ["\n      ",bel12,"\n    "])
+appendChild(bel13, ["\n    //   ",bel12,"\n    // "])
 var bel15 = document.createElement("section")
 bel15.setAttribute("id", "scroll-tab-2")
 bel15.setAttribute("class", "mdl-layout__tab-panel")
 var bel14 = document.createElement("div")
 bel14.setAttribute("class", "page-content")
-appendChild(bel15, ["\n      ",bel14,"\n    "])
+appendChild(bel15, ["\n    //   ",bel14,"\n    // "])
 var bel17 = document.createElement("section")
 bel17.setAttribute("id", "scroll-tab-3")
 bel17.setAttribute("class", "mdl-layout__tab-panel")
 var bel16 = document.createElement("div")
 bel16.setAttribute("class", "page-content")
-appendChild(bel17, ["\n      ",bel16,"\n    "])
+appendChild(bel17, ["\n    //   ",bel16,"\n    // "])
 var bel19 = document.createElement("section")
 bel19.setAttribute("id", "scroll-tab-4")
 bel19.setAttribute("class", "mdl-layout__tab-panel")
 var bel18 = document.createElement("div")
 bel18.setAttribute("class", "page-content")
-appendChild(bel19, ["\n      ",bel18,"\n    "])
+appendChild(bel19, ["\n    //   ",bel18,"\n    // "])
 var bel21 = document.createElement("section")
 bel21.setAttribute("id", "scroll-tab-5")
 bel21.setAttribute("class", "mdl-layout__tab-panel")
 var bel20 = document.createElement("div")
 bel20.setAttribute("class", "page-content")
-appendChild(bel21, ["\n      ",bel20,"\n    "])
+appendChild(bel21, ["\n    //   ",bel20,"\n    // "])
 var bel23 = document.createElement("section")
 bel23.setAttribute("id", "scroll-tab-6")
 bel23.setAttribute("class", "mdl-layout__tab-panel")
 var bel22 = document.createElement("div")
 bel22.setAttribute("class", "page-content")
-appendChild(bel23, ["\n      ",bel22,"\n    "])
-appendChild(bel24, ["\n    ",bel13,"\n    ",bel15,"\n    ",bel17,"\n    ",bel19,"\n    ",bel21,"\n    ",bel23,"\n  "])
+appendChild(bel23, ["\n    //   ",bel22,"\n    // "])
+appendChild(bel24, ["\n    ",arguments[2],"\n    // ",bel13,"\n    // ",bel15,"\n    // ",bel17,"\n    // ",bel19,"\n    // ",bel21,"\n    // ",bel23,"\n  "])
 appendChild(bel25, ["\n  ",bel9,"\n  ",bel11,"\n  ",bel24,"\n"])
 appendChild(bel26, ["\n",bel25,"\n"])
           return bel26
-        }(title))	
+        }(state.title,state.tabs.map(function ( tab ) {
+        return (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel1 = document.createElement("span")
+var bel0 = document.createElement("a")
+bel0.setAttribute("href", arguments[0])
+bel0.setAttribute("class", "mdl-layout__tab")
+appendChild(bel0, [arguments[1]])
+appendChild(bel1, [bel0])
+          return bel1
+        }(idfy(tab.title),tab.title))
+      }),state.tabs.map( function ( tab ) {
+      return (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel1 = document.createElement("section")
+bel1.setAttribute("id", arguments[1])
+bel1.setAttribute("class", "mdl-layout__tab-panel is-active")
+var bel0 = document.createElement("div")
+bel0.setAttribute("class", "page-content")
+appendChild(bel0, [arguments[0]])
+appendChild(bel1, ["\n      ",bel0,"\n    "])
+          return bel1
+        }(tab.content,idfy(tab.title)))
+    })))	
 }
 
 
-},{"yo-yo":7}]},{},[9]);
+},{"yo-yo":7}],11:[function(require,module,exports){
+var yo = require('yo-yo')
+var ModMenu = require('./modulos/menu/menu.js')
+var ModFooter = require('./modulos/footer/footer.js')
+var footer = ModFooter('Copyright')
+var state = {
+  title: "El titulo",
+  tabs: [
+  {title: "Primer titulo", content: "Primer contenido"},
+  {title: "Segundo titulo", content: "Segundo contenido"}
+  ]
+}
+
+var menu = ModMenu(state)
+var div = (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel1 = document.createElement("div")
+var bel0 = document.createElement("div")
+bel0.setAttribute("class", "footer")
+appendChild(bel0, [arguments[0]])
+appendChild(bel1, [arguments[1],bel0])
+          return bel1
+        }(footer,menu))
+document.body.appendChild(div)
+
+},{"./modulos/footer/footer.js":9,"./modulos/menu/menu.js":10,"yo-yo":7}]},{},[11]);

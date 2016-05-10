@@ -1,9 +1,7 @@
 var yo = require('yo-yo')
-var ModMenu = require('./modulos/menu/menu.js')
-var ModFooter = require('./modulos/footer/footer.js')
-var footer = ModFooter('Copyright')
-var menu = ModMenu('OvniOn Panel')
+var lg = require('./modulos/login/login.js')
+var login = lg('')
 
 
-var div = yo`<div id="container">${menu}<div class="footer">${footer}</div></div>`
+var div = yo`<div id="container"><div class="center">${login}</div></div>`
 document.body.appendChild(div)
