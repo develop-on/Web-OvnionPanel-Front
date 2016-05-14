@@ -14,11 +14,8 @@ var state = {
   ]
 }
 
-<<<<<<< HEAD
-var menu = ModMenu(state)
-var div = yo`<div>${menu}<div class="footer">${footer}</div></div>`
-=======
+
 var menu = ModMenu(state, 'Primer titulo')
-var div = yo`<div>${menu}${footer}</div>`
->>>>>>> 1db44f4af2e552381fe3a737b9a203af78a04379
+var div = yo`<div>${menu}<div class="footer">${footer}</div></div>`
+
 document.body.appendChild(div)

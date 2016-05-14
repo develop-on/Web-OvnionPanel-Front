@@ -1075,7 +1075,7 @@ function idfy ( title ) {
   return '#' + title.split(' ').join('').toLowerCase()
 }       
 module.exports = function menu (state) {
-return (function () {
+var el = (function () {
           function appendChild (el, childs) {
             for (var i = 0; i < childs.length; i++) {
               var node = childs[i];
@@ -1103,93 +1103,33 @@ return (function () {
               }
             }
           }
-          var bel26 = document.createElement("div")
-var bel25 = document.createElement("div")
-bel25.setAttribute("class", "mdl-layout mdl-js-layout mdl-layout--fixed-header")
-var bel9 = document.createElement("header")
-bel9.setAttribute("class", "mdl-layout__header")
+          var bel8 = document.createElement("div")
+var bel7 = document.createElement("div")
+bel7.setAttribute("class", "mdl-layout mdl-js-layout mdl-layout--fixed-header")
+var bel3 = document.createElement("header")
+bel3.setAttribute("class", "mdl-layout__header")
 var bel1 = document.createElement("div")
 bel1.setAttribute("class", "mdl-layout__header-row")
 var bel0 = document.createElement("span")
 bel0.setAttribute("class", "mdl-layout-title")
 appendChild(bel0, [arguments[0]])
 appendChild(bel1, ["\n\n      ",bel0,"\n    "])
-var bel8 = document.createElement("div")
-bel8.setAttribute("class", "mdl-layout__tab-bar mdl-js-ripple-effect")
-var bel2 = document.createElement("a")
-bel2.setAttribute("href", "#scroll-tab-1")
-bel2.setAttribute("class", "mdl-layout__tab is-active")
-appendChild(bel2, ["Modulo 1"])
-var bel3 = document.createElement("a")
-bel3.setAttribute("href", "#scroll-tab-2")
-bel3.setAttribute("class", "mdl-layout__tab")
-appendChild(bel3, ["Modulo 2"])
-var bel4 = document.createElement("a")
-bel4.setAttribute("href", "#scroll-tab-3")
-bel4.setAttribute("class", "mdl-layout__tab")
-appendChild(bel4, ["Modulo 3"])
-var bel5 = document.createElement("a")
-bel5.setAttribute("href", "#scroll-tab-4")
-bel5.setAttribute("class", "mdl-layout__tab")
-appendChild(bel5, ["Modulo 4"])
-var bel6 = document.createElement("a")
-bel6.setAttribute("href", "#scroll-tab-5")
-bel6.setAttribute("class", "mdl-layout__tab")
-appendChild(bel6, ["Modulo 5"])
-var bel7 = document.createElement("a")
-bel7.setAttribute("href", "#scroll-tab-6")
-bel7.setAttribute("class", "mdl-layout__tab")
-appendChild(bel7, ["Modulo 6"])
-appendChild(bel8, ["\n      ",arguments[1],"\n      // ",bel2,"\n      // ",bel3,"\n      // ",bel4,"\n      // ",bel5,"\n      // ",bel6,"\n      // ",bel7,"\n    "])
-appendChild(bel9, ["\n    ",bel1,"\n\n    ",bel8,"\n  "])
-var bel11 = document.createElement("div")
-bel11.setAttribute("class", "mdl-layout__drawer")
-var bel10 = document.createElement("span")
-bel10.setAttribute("class", "mdl-layout-title")
-appendChild(bel10, ["Title"])
-appendChild(bel11, ["\n    ",bel10,"\n  "])
-var bel24 = document.createElement("main")
-bel24.setAttribute("class", "mdl-layout__content")
-var bel13 = document.createElement("section")
-bel13.setAttribute("id", "scroll-tab-1")
-bel13.setAttribute("class", "mdl-layout__tab-panel is-active")
-var bel12 = document.createElement("div")
-bel12.setAttribute("class", "page-content")
-appendChild(bel13, ["\n    //   ",bel12,"\n    // "])
-var bel15 = document.createElement("section")
-bel15.setAttribute("id", "scroll-tab-2")
-bel15.setAttribute("class", "mdl-layout__tab-panel")
-var bel14 = document.createElement("div")
-bel14.setAttribute("class", "page-content")
-appendChild(bel15, ["\n    //   ",bel14,"\n    // "])
-var bel17 = document.createElement("section")
-bel17.setAttribute("id", "scroll-tab-3")
-bel17.setAttribute("class", "mdl-layout__tab-panel")
-var bel16 = document.createElement("div")
-bel16.setAttribute("class", "page-content")
-appendChild(bel17, ["\n    //   ",bel16,"\n    // "])
-var bel19 = document.createElement("section")
-bel19.setAttribute("id", "scroll-tab-4")
-bel19.setAttribute("class", "mdl-layout__tab-panel")
-var bel18 = document.createElement("div")
-bel18.setAttribute("class", "page-content")
-appendChild(bel19, ["\n    //   ",bel18,"\n    // "])
-var bel21 = document.createElement("section")
-bel21.setAttribute("id", "scroll-tab-5")
-bel21.setAttribute("class", "mdl-layout__tab-panel")
-var bel20 = document.createElement("div")
-bel20.setAttribute("class", "page-content")
-appendChild(bel21, ["\n    //   ",bel20,"\n    // "])
-var bel23 = document.createElement("section")
-bel23.setAttribute("id", "scroll-tab-6")
-bel23.setAttribute("class", "mdl-layout__tab-panel")
-var bel22 = document.createElement("div")
-bel22.setAttribute("class", "page-content")
-appendChild(bel23, ["\n    //   ",bel22,"\n    // "])
-appendChild(bel24, ["\n    ",arguments[2],"\n    // ",bel13,"\n    // ",bel15,"\n    // ",bel17,"\n    // ",bel19,"\n    // ",bel21,"\n    // ",bel23,"\n  "])
-appendChild(bel25, ["\n  ",bel9,"\n  ",bel11,"\n  ",bel24,"\n"])
-appendChild(bel26, ["\n",bel25,"\n"])
-          return bel26
+var bel2 = document.createElement("div")
+bel2.setAttribute("class", "mdl-layout__tab-bar mdl-js-ripple-effect")
+appendChild(bel2, ["\n      ",arguments[1],"\n   "])
+appendChild(bel3, ["\n    ",bel1,"\n\n    ",bel2,"\n  "])
+var bel5 = document.createElement("div")
+bel5.setAttribute("class", "mdl-layout__drawer")
+var bel4 = document.createElement("span")
+bel4.setAttribute("class", "mdl-layout-title")
+appendChild(bel4, ["Title"])
+appendChild(bel5, ["\n    ",bel4,"\n  "])
+var bel6 = document.createElement("main")
+bel6.setAttribute("class", "mdl-layout__content")
+appendChild(bel6, ["\n    ",arguments[2],"\n  "])
+appendChild(bel7, ["\n  ",bel3,"\n  ",bel5,"\n  ",bel6,"\n"])
+appendChild(bel8, ["\n",bel7,"\n"])
+          return bel8
         }(state.title,state.tabs.map(function ( tab ) {
         return (function () {
           function appendChild (el, childs) {
@@ -1219,13 +1159,11 @@ appendChild(bel26, ["\n",bel25,"\n"])
               }
             }
           }
-          var bel1 = document.createElement("span")
-var bel0 = document.createElement("a")
+          var bel0 = document.createElement("a")
 bel0.setAttribute("href", arguments[0])
 bel0.setAttribute("class", "mdl-layout__tab")
 appendChild(bel0, [arguments[1]])
-appendChild(bel1, [bel0])
-          return bel1
+          return bel0
         }(idfy(tab.title),tab.title))
       }),state.tabs.map( function ( tab ) {
       return (function () {
@@ -1258,7 +1196,7 @@ appendChild(bel1, [bel0])
           }
           var bel1 = document.createElement("section")
 bel1.setAttribute("id", arguments[1])
-bel1.setAttribute("class", "mdl-layout__tab-panel is-active")
+bel1.setAttribute("class", "mdl-layout__tab-panel")
 var bel0 = document.createElement("div")
 bel0.setAttribute("class", "page-content")
 appendChild(bel0, [arguments[0]])
@@ -1266,6 +1204,8 @@ appendChild(bel1, ["\n      ",bel0,"\n    "])
           return bel1
         }(tab.content,idfy(tab.title)))
     })))	
+el.getElementsByClassName('mdl-layout__tab-bar')[0].firstElementChild.classList.add('is-active')
+return el
 }
 
 
@@ -1277,12 +1217,17 @@ var footer = ModFooter('Copyright')
 var state = {
   title: "El titulo",
   tabs: [
-  {title: "Primer titulo", content: "Primer contenido"},
-  {title: "Segundo titulo", content: "Segundo contenido"}
+  {title: "Primer titulo", content: "Primer contenido", activeTab: true},
+  {title: "Segundo titulo", content: "Segundo contenido"},
+  {title: "tercer titulo", content: "Segundo contenido"},
+  {title: "cuarto titulo", content: "Segundo contenido"},
+  {title: "cuarto titulo", content: "Segundo contenido"},
+  {title: "cuarto titulo", content: "Segundo contenido"}
   ]
 }
 
-var menu = ModMenu(state)
+
+var menu = ModMenu(state, 'Primer titulo')
 var div = (function () {
           function appendChild (el, childs) {
             for (var i = 0; i < childs.length; i++) {
@@ -1318,6 +1263,7 @@ appendChild(bel0, [arguments[0]])
 appendChild(bel1, [arguments[1],bel0])
           return bel1
         }(footer,menu))
+
 document.body.appendChild(div)
 
 },{"./modulos/footer/footer.js":9,"./modulos/menu/menu.js":10,"yo-yo":7}]},{},[11]);
