@@ -1,0 +1,1 @@
+objeto('color','porcentaje','tamaño')

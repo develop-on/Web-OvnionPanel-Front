@@ -119,9 +119,447 @@ function belCreateElement (tag, props, children) {
 module.exports = hyperx(belCreateElement)
 module.exports.createElement = belCreateElement
 
-},{"global/document":3,"hyperx":5}],2:[function(require,module,exports){
+},{"global/document":20,"hyperx":22}],2:[function(require,module,exports){
 
 },{}],3:[function(require,module,exports){
+(function (global){
+'use strict';
+
+var csjs = require('csjs');
+var insertCss = require('insert-css');
+
+function csjsInserter() {
+  var args = Array.prototype.slice.call(arguments);
+  var result = csjs.apply(null, args);
+  if (global.document) {
+    insertCss(csjs.getCss(result));
+  }
+  return result;
+}
+
+module.exports = csjsInserter;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"csjs":9,"insert-css":23}],4:[function(require,module,exports){
+'use strict';
+
+module.exports = require('csjs/get-css');
+
+},{"csjs/get-css":8}],5:[function(require,module,exports){
+'use strict';
+
+var csjs = require('./csjs');
+
+module.exports = csjs;
+module.exports.csjs = csjs;
+module.exports.getCss = require('./get-css');
+
+},{"./csjs":3,"./get-css":4}],6:[function(require,module,exports){
+'use strict';
+
+module.exports = require('csjs-inject');
+
+},{"csjs-inject":5}],7:[function(require,module,exports){
+'use strict';
+
+module.exports = require('./lib/csjs');
+
+},{"./lib/csjs":13}],8:[function(require,module,exports){
+'use strict';
+
+module.exports = require('./lib/get-css');
+
+},{"./lib/get-css":16}],9:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"./csjs":7,"./get-css":8,"dup":5}],10:[function(require,module,exports){
+'use strict';
+
+/**
+ * base62 encode implementation based on base62 module:
+ * https://github.com/andrew/base62.js
+ */
+
+var CHARS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+module.exports = function encode(integer) {
+  if (integer === 0) {
+    return '0';
+  }
+  var str = '';
+  while (integer > 0) {
+    str = CHARS[integer % 62] + str;
+    integer = Math.floor(integer / 62);
+  }
+  return str;
+};
+
+},{}],11:[function(require,module,exports){
+'use strict';
+
+var makeComposition = require('./composition').makeComposition;
+
+module.exports = function createExports(classes, keyframes, compositions) {
+  var keyframesObj = Object.keys(keyframes).reduce(function(acc, key) {
+    var val = keyframes[key];
+    acc[val] = makeComposition([key], [val], true);
+    return acc;
+  }, {});
+
+  var exports = Object.keys(classes).reduce(function(acc, key) {
+    var val = classes[key];
+    var composition = compositions[key];
+    var extended = composition ? getClassChain(composition) : [];
+    var allClasses = [key].concat(extended);
+    var unscoped = allClasses.map(function(name) {
+      return classes[name] ? classes[name] : name;
+    });
+    acc[val] = makeComposition(allClasses, unscoped);
+    return acc;
+  }, keyframesObj);
+
+  return exports;
+}
+
+function getClassChain(obj) {
+  var visited = {}, acc = [];
+
+  function traverse(obj) {
+    return Object.keys(obj).forEach(function(key) {
+      if (!visited[key]) {
+        visited[key] = true;
+        acc.push(key);
+        traverse(obj[key]);
+      }
+    });
+  }
+
+  traverse(obj);
+  return acc;
+}
+
+},{"./composition":12}],12:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  makeComposition: makeComposition,
+  isComposition: isComposition
+};
+
+/**
+ * Returns an immutable composition object containing the given class names
+ * @param  {array} classNames - The input array of class names
+ * @return {Composition}      - An immutable object that holds multiple
+ *                              representations of the class composition
+ */
+function makeComposition(classNames, unscoped, isAnimation) {
+  var classString = classNames.join(' ');
+  return Object.create(Composition.prototype, {
+    classNames: { // the original array of class names
+      value: Object.freeze(classNames),
+      configurable: false,
+      writable: false,
+      enumerable: true
+    },
+    unscoped: { // the original array of class names
+      value: Object.freeze(unscoped),
+      configurable: false,
+      writable: false,
+      enumerable: true
+    },
+    className: { // space-separated class string for use in HTML
+      value: classString,
+      configurable: false,
+      writable: false,
+      enumerable: true
+    },
+    selector: { // comma-separated, period-prefixed string for use in CSS
+      value: classNames.map(function(name) {
+        return isAnimation ? name : '.' + name;
+      }).join(', '),
+      configurable: false,
+      writable: false,
+      enumerable: true
+    },
+    toString: { // toString() method, returns class string for use in HTML
+      value: function() {
+        return classString;
+      },
+      configurable: false,
+      writeable: false,
+      enumerable: false
+    }
+  });
+}
+
+/**
+ * Returns whether the input value is a Composition
+ * @param value      - value to check
+ * @return {boolean} - whether value is a Composition or not
+ */
+function isComposition(value) {
+  return value instanceof Composition;
+}
+
+/**
+ * Private constructor for use in `instanceof` checks
+ */
+function Composition() {}
+
+},{}],13:[function(require,module,exports){
+'use strict';
+
+var extractExtends = require('./css-extract-extends');
+var isComposition = require('./composition').isComposition;
+var buildExports = require('./build-exports');
+var scopify = require('./scopeify');
+var cssKey = require('./css-key');
+
+module.exports = function csjsHandler(strings) {
+  // Fast path to prevent arguments deopt
+  var values = Array(arguments.length - 1);
+  for (var i = 1; i < arguments.length; i++) {
+    values[i - 1] = arguments[i];
+  }
+  var css = joiner(strings, values.map(selectorize));
+
+  var ignores = values.reduce(function(acc, val) {
+    if (isComposition(val)) {
+      val.classNames.forEach(function(name, i) {
+        acc[name] = val.unscoped[i];
+      });
+    }
+    return acc;
+  }, {});
+
+  var scoped = scopify(css, ignores);
+  var hashes = Object.assign({}, scoped.classes, scoped.keyframes);
+  var extracted = extractExtends(scoped.css, hashes);
+
+  var localClasses = without(scoped.classes, ignores);
+  var localKeyframes = without(scoped.keyframes, ignores);
+  var compositions = extracted.compositions;
+
+  var exports = buildExports(localClasses, localKeyframes, compositions);
+
+  return Object.defineProperty(exports, cssKey, {
+    enumerable: false,
+    configurable: false,
+    writeable: false,
+    value: extracted.css
+  });
+};
+
+/**
+ * Replaces class compositions with comma seperated class selectors
+ * @param  value - the potential class composition
+ * @return       - the original value or the selectorized class composition
+ */
+function selectorize(value) {
+  return isComposition(value) ? value.selector : value;
+}
+
+/**
+ * Joins template string literals and values
+ * @param  {array} strings - array of strings
+ * @param  {array} values  - array of values
+ * @return {string}        - strings and values joined
+ */
+function joiner(strings, values) {
+  return strings.map(function(str, i) {
+    return (i !== values.length) ? str + values[i] : str;
+  }).join('');
+}
+
+/**
+ * Returns first object without keys of second
+ * @param  {object} obj      - source object
+ * @param  {object} unwanted - object with unwanted keys
+ * @return {object}          - first object without unwanted keys
+ */
+function without(obj, unwanted) {
+  return Object.keys(obj).reduce(function(acc, key) {
+    if (!unwanted[key]) {
+      acc[key] = obj[key];
+    }
+    return acc;
+  }, {});
+}
+
+},{"./build-exports":11,"./composition":12,"./css-extract-extends":14,"./css-key":15,"./scopeify":19}],14:[function(require,module,exports){
+'use strict';
+
+var makeComposition = require('./composition').makeComposition;
+
+var regex = /(.*?)(\s+?)(extends\s+?)((?:.|\n)*?){(?:(?:.|\n)*?)}/g;
+
+module.exports = function extractExtends(css, hashed) {
+  var found, matches = [];
+  while (found = regex.exec(css)) {
+    matches.unshift(found);
+  }
+
+  function extractCompositions(acc, match) {
+    var extendee = getClassName(match[1]);
+    var keyword = match[3];
+    var extended = match[4];
+
+    // remove from output css
+    var index = match.index + match[1].length + match[2].length;
+    var len = keyword.length + extended.length;
+    acc.css = acc.css.slice(0, index) + acc.css.slice(index + len);
+    
+    var extendedClasses = splitter(extended);
+
+    extendedClasses.forEach(function(className) {
+      if (!acc.compositions[extendee]) {
+        acc.compositions[extendee] = {};
+      }
+      if (!acc.compositions[className]) {
+        acc.compositions[className] = {};
+      }
+      acc.compositions[extendee][className] = acc.compositions[className];
+    });
+    return acc;
+  }
+
+  return matches.reduce(extractCompositions, {
+    css: css,
+    compositions: {}
+  });
+
+};
+
+function splitter(match) {
+  return match.split(',').map(getClassName);
+}
+
+function getClassName(str) {
+  var trimmed = str.trim();
+  return trimmed[0] === '.' ? trimmed.substr(1) : trimmed;
+}
+
+},{"./composition":12}],15:[function(require,module,exports){
+'use strict';
+
+/**
+ * CSS identifiers with whitespace are invalid
+ * Hence this key will not cause a collision
+ */
+
+module.exports = ' css ';
+
+},{}],16:[function(require,module,exports){
+'use strict';
+
+var cssKey = require('./css-key');
+
+module.exports = function getCss(csjs) {
+  return csjs[cssKey];
+};
+
+},{"./css-key":15}],17:[function(require,module,exports){
+'use strict';
+
+/**
+ * djb2 string hash implementation based on string-hash module:
+ * https://github.com/darkskyapp/string-hash
+ */
+
+module.exports = function hashStr(str) {
+  var hash = 5381;
+  var i = str.length;
+
+  while (i) {
+    hash = (hash * 33) ^ str.charCodeAt(--i)
+  }
+  return hash >>> 0;
+};
+
+},{}],18:[function(require,module,exports){
+'use strict';
+
+var encode = require('./base62-encode');
+var hash = require('./hash-string');
+
+module.exports = function fileScoper(fileSrc) {
+  var suffix = encode(hash(fileSrc));
+
+  return function scopedName(name) {
+    return name + '_' + suffix;
+  }
+};
+
+},{"./base62-encode":10,"./hash-string":17}],19:[function(require,module,exports){
+'use strict';
+
+var fileScoper = require('./scoped-name');
+
+var findClasses = /(\.)(?!\d)([^\s\.,{\[>+~#:]*)(?![^{]*})/.source;
+var findKeyframes = /(@\S*keyframes\s*)([^{\s]*)/.source;
+var ignoreComments = /(?!(?:[^*/]|\*[^/]|\/[^*])*\*+\/)/.source;
+
+var classRegex = new RegExp(findClasses + ignoreComments, 'g');
+var keyframesRegex = new RegExp(findKeyframes + ignoreComments, 'g');
+
+module.exports = scopify;
+
+function scopify(css, ignores) {
+  var makeScopedName = fileScoper(css);
+  var replacers = {
+    classes: classRegex,
+    keyframes: keyframesRegex
+  };
+
+  function scopeCss(result, key) {
+    var replacer = replacers[key];
+    function replaceFn(fullMatch, prefix, name) {
+      var scopedName = ignores[name] ? name : makeScopedName(name);
+      result[key][scopedName] = name;
+      return prefix + scopedName;
+    }
+    return {
+      css: result.css.replace(replacer, replaceFn),
+      keyframes: result.keyframes,
+      classes: result.classes
+    };
+  }
+
+  var result = Object.keys(replacers).reduce(scopeCss, {
+    css: css,
+    keyframes: {},
+    classes: {}
+  });
+
+  return replaceAnimations(result);
+}
+
+function replaceAnimations(result) {
+  var animations = Object.keys(result.keyframes).reduce(function(acc, key) {
+    acc[result.keyframes[key]] = key;
+    return acc;
+  }, {});
+  var unscoped = Object.keys(animations);
+
+  if (unscoped.length) {
+    var regexStr = '((?:animation|animation-name)\\s*:[^};]*)('
+      + unscoped.join('|') + ')([;\\s])' + ignoreComments;
+    var regex = new RegExp(regexStr, 'g');
+
+    var replaced = result.css.replace(regex, function(match, preamble, name, ending) {
+      return preamble + animations[name] + ending;
+    });
+
+    return {
+      css: replaced,
+      keyframes: result.keyframes,
+      classes: result.classes
+    }
+  }
+
+  return result;
+}
+
+},{"./scoped-name":18}],20:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -140,7 +578,7 @@ if (typeof document !== 'undefined') {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":2}],4:[function(require,module,exports){
+},{"min-document":2}],21:[function(require,module,exports){
 module.exports = attributeToProperty
 
 var transform = {
@@ -161,7 +599,7 @@ function attributeToProperty (h) {
   }
 }
 
-},{}],5:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var attrToProp = require('hyperscript-attribute-to-property')
 
 var VAR = 0, TEXT = 1, OPEN = 2, CLOSE = 3, ATTR = 4
@@ -426,7 +864,262 @@ var closeRE = RegExp('^(' + [
 ].join('|') + ')(?:[\.#][a-zA-Z0-9\u007F-\uFFFF_:-]+)*$')
 function selfClosing (tag) { return closeRE.test(tag) }
 
-},{"hyperscript-attribute-to-property":4}],6:[function(require,module,exports){
+},{"hyperscript-attribute-to-property":21}],23:[function(require,module,exports){
+var inserted = {};
+
+module.exports = function (css, options) {
+    if (inserted[css]) return;
+    inserted[css] = true;
+    
+    var elem = document.createElement('style');
+    elem.setAttribute('type', 'text/css');
+
+    if ('textContent' in elem) {
+      elem.textContent = css;
+    } else {
+      elem.styleSheet.cssText = css;
+    }
+    
+    var head = document.getElementsByTagName('head')[0];
+    if (options && options.prepend) {
+        head.insertBefore(elem, head.childNodes[0]);
+    } else {
+        head.appendChild(elem);
+    }
+};
+
+},{}],24:[function(require,module,exports){
+/*!
+ * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
+'use strict';
+
+var isObject = require('isobject');
+
+function isObjectObject(o) {
+  return isObject(o) === true
+    && Object.prototype.toString.call(o) === '[object Object]';
+}
+
+module.exports = function isPlainObject(o) {
+  var ctor,prot;
+  
+  if (isObjectObject(o) === false) return false;
+  
+  // If has modified constructor
+  ctor = o.constructor;
+  if (typeof ctor !== 'function') return false;
+  
+  // If has modified prototype
+  prot = ctor.prototype;
+  if (isObjectObject(prot) === false) return false;
+  
+  // If constructor does not have an Object-specific method
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false;
+  }
+  
+  // Most likely a plain Object
+  return true;
+};
+
+},{"isobject":25}],25:[function(require,module,exports){
+/*!
+ * isobject <https://github.com/jonschlinkert/isobject>
+ *
+ * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
+'use strict';
+
+module.exports = function isObject(val) {
+  return val != null && typeof val === 'object'
+    && !Array.isArray(val);
+};
+
+},{}],26:[function(require,module,exports){
+function isHTMLElement(obj) {
+    return obj && (typeof obj === 'object') &&
+      (obj.nodeType === 1) && (typeof obj.style === 'object') &&
+      (typeof obj.ownerDocument ==='object');
+}
+
+function isA(obj) {
+    return isHTMLElement(obj) && obj.tagName === 'A';
+}
+
+function closestA(checkNode) {
+    do {
+        if (isA(checkNode)) {
+            return checkNode;
+        }
+    } while ((checkNode = checkNode.parentNode));
+}
+
+function normalizeLeadingSlash(pathname) {
+    if (pathname.charAt(0) !== '/') {
+        pathname = '/' + pathname;
+    }
+    return pathname;
+}
+
+function isSecondaryButton(event) {
+    return (typeof event === 'object') && ('button' in event) && event.button !== 0;
+}
+
+// [1] http://blogs.msdn.com/b/ieinternals/archive/2011/02/28/internet-explorer-window-location-pathname-missing-slash-and-host-has-port.aspx
+// [2] https://github.com/substack/catch-links/blob/7aee219cdc2c845c78caad6070886a9380b90e4c/index.js#L13-L17
+// [3] IE10 (and possibly later) report that anchor.port is the default port
+//     but dont append it to the hostname, so if the host doesnt end with the port
+//     append it to the anchor host as well
+
+function isLocal(event, anchor, lookForHash) {
+    event || (event = {});
+
+    // Skip modifier events
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+        return null;
+    }
+
+    // Skip non-primary clicks
+    if (isSecondaryButton(event)) {
+        return null;
+    }
+
+    // If we have an anchor but its not an A tag
+    // try to find the closest one
+    if (anchor && !isA(anchor)) {
+        anchor = closestA(anchor);
+    }
+
+    // Only test anchor elements
+    if (!anchor || !isA(anchor)) {
+        return null;
+    }
+
+    // Dont test anchors with target=_blank
+    if (anchor.target === '_blank') {
+        return null;
+    }
+
+    // IE9 doesn't put a leading slash on anchor.pathname [1]
+    var aPathname = normalizeLeadingSlash(anchor.pathname);
+    var wPathname = normalizeLeadingSlash(window.location.pathname);
+    var aHost = anchor.host;
+    var aPort = anchor.port;
+    var wHost = window.location.host;
+    var wPort = window.location.port;
+
+    // Some browsers (Chrome 36) return an empty string for anchor.hash
+    // even when href="#", so we also check the href
+    var aHash = anchor.hash || (anchor.href.indexOf('#') > -1 ? '#' + anchor.href.split('#')[1] : null);
+    var inPageHash;
+
+    // Window has no port, but anchor has the default port
+    if (!wPort && aPort && (aPort === '80' || aPort === '443')) {
+        // IE9 sometimes includes the default port (80 or 443) on anchor.host
+        // so we append the default port to the window host in this case
+        // so they will match for the host equality check [1]
+        wHost += ':' + aPort;
+        aHost += aHost.indexOf(aPort, aHost.length - aPort.length) === -1 ? ':' + aPort : ''; // [3]
+    }
+
+    // Hosts are the same, its a local link
+    if (aHost === wHost) {
+
+        // If everything else is the same
+        // and hash exists, then it is an in-page hash [2]
+        inPageHash =
+            aPathname === wPathname &&
+            anchor.search === window.location.search &&
+            aHash;
+
+        if (lookForHash === true) {
+            // If we are looking for the hash then this will
+            // only return a truthy value if the link
+            // is an *in-page* hash link
+            return inPageHash;
+        } else {
+            // If this is an in page hash link
+            // then ignore it because we werent looking for hash links
+            return inPageHash ?
+                null :
+                aPathname + (anchor.search || '') + (aHash || '');
+        }
+    }
+
+    return null;
+}
+
+// Take two arguments and return an ordered array of [event, anchor]
+function getEventAndAnchor(arg1, arg2) {
+    var ev = null;
+    var anchor = null;
+
+    // Two arguments will come in this order
+    if (arguments.length === 2) {
+        ev = arg1;
+        anchor = arg2;
+    }
+    // If our first arg is an element
+    // then use that as our anchor
+    else if (isHTMLElement(arg1)) {
+        anchor = arg1;
+    }
+    // Otherwise our argument is an event
+    else {
+        ev = arg1;
+    }
+
+    // If there is no anchor, but we have an event
+    // then use event.target
+    if (!anchor && ev && ev.target) {
+        anchor = ev.target;
+    }
+
+    // Return an array so that it can be used with Function.apply
+    return [ev, anchor];
+}
+
+
+// Functions to be used in exports. Defined here for alias purposes
+function pathname() {
+    return isLocal.apply(null, getEventAndAnchor.apply(null, arguments));
+}
+
+function hash() {
+    return isLocal.apply(null, getEventAndAnchor.apply(null, arguments).concat(true));
+}
+
+function active() {
+    var args = Array.prototype.slice.call(arguments);
+    var last = args[args.length - 1];
+    var checkPath = window.location.pathname;
+
+    if (typeof last === 'string') {
+        checkPath = last;
+        args = args.slice(0, -1);
+    }
+
+    return pathname.apply(null, args) === normalizeLeadingSlash(checkPath);
+}
+
+module.exports = {
+    isLocal: isLocal,
+    pathname: pathname,
+    getLocalPathname: pathname,
+    hash: hash,
+    getLocalHash: hash,
+    active: active,
+    isActive: active
+};
+
+},{}],27:[function(require,module,exports){
 // Create a range object for efficently rendering strings to elements.
 var range;
 
@@ -925,7 +1618,351 @@ function morphdom(fromNode, toNode, options) {
 
 module.exports = morphdom;
 
-},{}],7:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
+/**
+* Create an event emitter with namespaces
+* @name createNamespaceEmitter
+* @example
+* var emitter = require('./index')()
+*
+* emitter.on('*', function () {
+*   console.log('all events emitted', this.event)
+* })
+*
+* emitter.on('example', function () {
+*   console.log('example event emitted')
+* })
+*/
+module.exports = function createNamespaceEmitter () {
+  var emitter = { _fns: {} }
+
+  /**
+  * Emit an event. Optionally namespace the event. Separate the namespace and event with a `:`
+  * @name emit
+  * @param {String} event – the name of the event, with optional namespace
+  * @param {...*} data – data variables that will be passed as arguments to the event listener
+  * @example
+  * emitter.emit('example')
+  * emitter.emit('demo:test')
+  * emitter.emit('data', { example: true}, 'a string', 1)
+  */
+  emitter.emit = function emit (event) {
+    var args = [].slice.call(arguments, 1)
+    var namespaced = namespaces(event)
+    if (this._fns[event]) emitAll(event, this._fns[event], args)
+    if (namespaced) emitAll(event, namespaced, args)
+  }
+
+  /**
+  * Create en event listener.
+  * @name on
+  * @param {String} event
+  * @param {Function} fn
+  * @example
+  * emitter.on('example', function () {})
+  * emitter.on('demo', function () {})
+  */
+  emitter.on = function on (event, fn) {
+    if (typeof fn !== 'function') { throw new Error('callback required') }
+    (this._fns[event] = this._fns[event] || []).push(fn)
+  }
+
+  /**
+  * Create en event listener that fires once.
+  * @name once
+  * @param {String} event
+  * @param {Function} fn
+  * @example
+  * emitter.once('example', function () {})
+  * emitter.once('demo', function () {})
+  */
+  emitter.once = function once (event, fn) {
+    function one () {
+      fn.apply(this, arguments)
+      emitter.off(event, one)
+    }
+    this.on(event, one)
+  }
+
+  /**
+  * Stop listening to an event. Stop all listeners on an event by only passing the event name. Stop a single listener by passing that event handler as a callback.
+  * You must be explicit about what will be unsubscribed: `emitter.off('demo')` will unsubscribe an `emitter.on('demo')` listener, 
+  * `emitter.off('demo:example')` will unsubscribe an `emitter.on('demo:example')` listener
+  * @name off
+  * @param {String} event
+  * @param {Function} [fn] – the specific handler
+  * @example
+  * emitter.off('example')
+  * emitter.off('demo', function () {})
+  */
+  emitter.off = function off (event, fn) {
+    var keep = []
+
+    if (event && fn) {
+      for (var i = 0; i < this._fns.length; i++) {
+        if (this._fns[i] !== fn) {
+          keep.push(this._fns[i])
+        }
+      }
+    }
+
+    keep.length ? this._fns[event] = keep : delete this._fns[event]
+  }
+
+  function namespaces (e) {
+    var out = []
+    var args = e.split(':')
+    var fns = emitter._fns
+    Object.keys(fns).forEach(function (key) {
+      if (key === '*') out = out.concat(fns[key])
+      if (args.length === 2 && args[0] === key) out = out.concat(fns[key])
+    })
+    return out
+  }
+
+  function emitAll (e, fns, args) {
+    for (var i = 0; i < fns.length; i++) {
+      if (!fns[i]) break
+      fns[i].event = e
+      fns[i].apply(fns[i], args)
+    }
+  }
+
+  return emitter
+}
+
+},{}],29:[function(require,module,exports){
+var createEmitter = require('namespace-emitter')
+var isPlainObject = require('is-plain-object')
+var extend = require('xtend')
+
+/**
+* Create the store
+* @name createStoreEmitter
+* @param {function} modifier
+* @param {object} [initialState]
+* @example
+* var createStore = require('store-emitter')
+* var store = createStore(function (action, state) {
+*   if (action.type === 'change_something') {
+*     return { something: 'changed' }
+*   }
+* })
+*/
+module.exports = function createStore (modifier, initialState) {
+  if (typeof modifier !== 'function') {
+    throw new Error('first argument must be a function')
+  }
+
+  var emitter = createEmitter()
+  initialState = initialState || {}
+  var isEmitting = false
+  var state = extend(initialState)
+  store.initialState = getInitialState
+  store.getState = getState
+  store.emit = store
+  store.on = on
+  store.once = once
+  store.off = off
+  return store
+
+  /**
+  * Send an action to the store. Takes a single object parameter. Object must include a `type` property with a string value, and can contain any other properties.
+  * @name store
+  * @param {object} action
+  * @param {string} action.type
+  * @example
+  * store({
+  *   type: 'example'
+  *   exampleValue: 'anything'
+  * })
+  */
+  function store (action) {
+    if (!action || !isPlainObject(action)) {
+      throw new Error('action parameter is required and must be a plain object')
+    }
+
+    if (!action.type || typeof action.type !== 'string') {
+      throw new Error('type property of action is required and must be a string')
+    }
+
+    if (isEmitting) {
+      throw new Error('modifiers may not emit actions')
+    }
+
+    isEmitting = true
+    var oldState = extend(state)
+    state = modifier(action, oldState)
+    var newState = extend(state)
+
+    emitter.emit(action.type, action, newState, oldState)
+    isEmitting = false
+  }
+
+  /**
+  * Get the initial state of the store
+  * @name store.initialState
+  * @example
+  * var state = store.initialState()
+  */
+  function getInitialState () {
+    return initialState
+  }
+
+  /**
+   * Get the current state of the store
+   * @name store.getState
+   * @example
+   * var state = store.getState()
+   */
+  function getState () {
+    return state
+  }
+
+  /**
+  * Listen for changes to the store
+  * @name store.on
+  * @param {string} event – an action type
+  * @param {Function} callback
+  * @example
+  * store.on('*', function (action, state, oldState) {
+  *
+  * })
+  *
+  * store.on('article', function (action, state, oldState) {
+  *
+  * })
+  *
+  * store.on('article:delete', function (action, state, oldState) {
+  *
+  * })
+  */
+  function on (event, callback) {
+    emitter.on(event, callback)
+  }
+
+  /**
+  * Listen for a single change to the store
+  * @name store.once
+  * @param {string} event – an action type
+  * @param {Function} callback
+  * @example
+  * store.once('article', function (action, state, oldState) {
+  *
+  * })
+  */
+  function once (event, callback) {
+    emitter.once(event, callback)
+  }
+
+  /**
+  * Stop listening for changes to the store. Passing just the action type will remove all listeners for that action type.
+  * @name store.off
+  * @param {string} event – an action type
+  * @param {Function} [callback] – optional callback
+  * @example
+  * store.off('article', function (action, state, oldState) {
+  *
+  * })
+  */
+  function off (event, callback) {
+    emitter.off(event, callback)
+  }
+}
+
+},{"is-plain-object":24,"namespace-emitter":28,"xtend":31}],30:[function(require,module,exports){
+var bundleFn = arguments[3];
+var sources = arguments[4];
+var cache = arguments[5];
+
+var stringify = JSON.stringify;
+
+module.exports = function (fn, options) {
+    var wkey;
+    var cacheKeys = Object.keys(cache);
+
+    for (var i = 0, l = cacheKeys.length; i < l; i++) {
+        var key = cacheKeys[i];
+        var exp = cache[key].exports;
+        // Using babel as a transpiler to use esmodule, the export will always
+        // be an object with the default export as a property of it. To ensure
+        // the existing api and babel esmodule exports are both supported we
+        // check for both
+        if (exp === fn || exp && exp.default === fn) {
+            wkey = key;
+            break;
+        }
+    }
+
+    if (!wkey) {
+        wkey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
+        var wcache = {};
+        for (var i = 0, l = cacheKeys.length; i < l; i++) {
+            var key = cacheKeys[i];
+            wcache[key] = key;
+        }
+        sources[wkey] = [
+            Function(['require','module','exports'], '(' + fn + ')(self)'),
+            wcache
+        ];
+    }
+    var skey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
+
+    var scache = {}; scache[wkey] = wkey;
+    sources[skey] = [
+        Function(['require'], (
+            // try to call default if defined to also support babel esmodule
+            // exports
+            'var f = require(' + stringify(wkey) + ');' +
+            '(f.default ? f.default : f)(self);'
+        )),
+        scache
+    ];
+
+    var src = '(' + bundleFn + ')({'
+        + Object.keys(sources).map(function (key) {
+            return stringify(key) + ':['
+                + sources[key][0]
+                + ',' + stringify(sources[key][1]) + ']'
+            ;
+        }).join(',')
+        + '},{},[' + stringify(skey) + '])'
+    ;
+
+    var URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+
+    var blob = new Blob([src], { type: 'text/javascript' });
+    if (options && options.bare) { return blob; }
+    var workerUrl = URL.createObjectURL(blob);
+    var worker = new Worker(workerUrl);
+    if (typeof URL.revokeObjectURL == "function") {
+      URL.revokeObjectURL(workerUrl);
+    }
+    return worker;
+};
+
+},{}],31:[function(require,module,exports){
+module.exports = extend
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function extend() {
+    var target = {}
+
+    for (var i = 0; i < arguments.length; i++) {
+        var source = arguments[i]
+
+        for (var key in source) {
+            if (hasOwnProperty.call(source, key)) {
+                target[key] = source[key]
+            }
+        }
+    }
+
+    return target
+}
+
+},{}],32:[function(require,module,exports){
 var bel = require('bel') // turns template tag into DOM elements
 var morphdom = require('morphdom') // efficiently diffs + morphs two DOM elements
 var defaultEvents = require('./update-events.js') // default events to be copied when dom elements update
@@ -961,7 +1998,7 @@ module.exports.update = function (fromNode, toNode, opts) {
   }
 }
 
-},{"./update-events.js":8,"bel":1,"morphdom":6}],8:[function(require,module,exports){
+},{"./update-events.js":33,"bel":1,"morphdom":27}],33:[function(require,module,exports){
 module.exports = [
   // attribute events (can be set with attributes)
   'onclick',
@@ -999,15 +2036,15 @@ module.exports = [
   'onfocusout'
 ]
 
-},{}],9:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
+var login = require('./modulos/login/login.js')
+var menu = require('./modulos/menu/menu.js')
 var yo = require('yo-yo')
-// var styles = require('./menu-css.js')
 
-// var mc = styles['mdl-card']
-// var mct = styles['mdl-card__title']
-
-module.exports = function footer (title) {
-return (function () {
+module.exports = function (state) {
+  if (state.url === '/login') return login(state)
+  else if (state.url === '/menu') return menu(state)
+  else return (function () {
           function appendChild (el, childs) {
             for (var i = 0; i < childs.length; i++) {
               var node = childs[i];
@@ -1035,36 +2072,200 @@ return (function () {
               }
             }
           }
-          var bel8 = document.createElement("div")
-var bel7 = document.createElement("footer")
-bel7.setAttribute("class", "mdl-mini-footer")
-var bel6 = document.createElement("div")
-bel6.setAttribute("class", "mdl-mini-footer__left-section")
-var bel0 = document.createElement("div")
-bel0.setAttribute("class", "mdl-logo")
-appendChild(bel0, [arguments[0]])
-var bel5 = document.createElement("ul")
-bel5.setAttribute("class", "mdl-mini-footer__link-list")
-var bel2 = document.createElement("li")
+          var bel2 = document.createElement("div")
+var bel0 = document.createElement("a")
+bel0.setAttribute("href", "/login")
+appendChild(bel0, ["login"])
 var bel1 = document.createElement("a")
-bel1.setAttribute("href", "#")
-appendChild(bel1, ["Help"])
-appendChild(bel2, [bel1])
-var bel4 = document.createElement("li")
-var bel3 = document.createElement("a")
-bel3.setAttribute("href", "#")
-appendChild(bel3, ["Privacy & Terms"])
-appendChild(bel4, [bel3])
-appendChild(bel5, ["\n      ",bel2,"\n      ",bel4,"\n    "])
-appendChild(bel6, ["\n    ",bel0,"\n    ",bel5,"\n  "])
-appendChild(bel7, ["\n  ",bel6,"\n"])
-appendChild(bel8, ["\n",bel7,"\n"])
-          return bel8
-        }(title))	
+bel1.setAttribute("href", "/menu")
+appendChild(bel1, ["menu"])
+appendChild(bel2, [bel0," ",bel1])
+          return bel2
+        }())
+}
+
+},{"./modulos/login/login.js":37,"./modulos/menu/menu.js":38,"yo-yo":32}],35:[function(require,module,exports){
+/* Trabajamos el worker mediante webworkify. Esto resulta mas natural que compilar el worker aparte y llamarlo desde index.html. */
+var work = require('webworkify')
+var worker = work(require('./worker.js'))
+var yo = require('yo-yo')
+
+/* app, es nuestra vista principal. Contiene ademas la logica para elegir la vista en funcion de la url en el estado. */
+var app = require('./app.js')
+
+/* Permite identificar los links locales facilmente y sin lidiar con diferencias entre navegadores. */
+var localLinks = require('local-links')
+
+/* El elemento base sobre el que vamos a correr yo.update */
+var el
+
+/* Por cada evento que recibimos del woker verificamos si existe el elemento base el.
+   Si no existe, vaciamos el body y lo inicializamos.
+   Si existe, ya podemos correr yo.update.
+*/
+worker.onmessage = function (ev) {
+  console.log(ev)
+    var newel = app(ev.data)
+    var url = ev.data.url
+  if (!el) {
+        el = newel
+    document.body.innerHTML = ''
+    return document.body.appendChild(el)
+  }
+  yo.update(el, newel)
+
+/* Si la url de la barra de navegacion no coincide con la recibida, la actualizamos. */
+  if (location.pathname !== url) {
+    history.pushState(null, null, url)
+  }
+}
+
+/* Escuchamos eventos de los botones atras y adelante del navegador y enviamos la nueva url al worker para que actualice el estado */
+window.addEventListener('popstate', function () {
+  worker.postMessage({type: 'setUrl', payload: location.pathname.toString()})
+})
+
+
+// Escuchamos todos los clicks.
+document.body.addEventListener('click', function (event) {
+  // handles internal navigation defined as
+  // clicks on <a> tags that have `href` that is
+  // on the same origin.
+  // https://www.npmjs.com/package/local-links
+  var pathname = localLinks.getLocalPathname(event)
+  if (pathname) {
+    // stop browser from following the link
+    event.preventDefault()
+    // instead, post the new URL to our worker
+    // which will trigger compute a new vDom
+    // based on that new URL state
+    worker.postMessage({type: 'setUrl', payload: pathname})
+    return
+  }
+
+  // this is for other "onClick" type events we want to
+  // respond to. We check existance of an `data-click`
+  // attribute and if it exists, post that back.
+  // In our case, the messages look like either
+  // {type: "increment"}
+  // or
+  // {type: "decrement"}
+  // but could contain any serializable payload
+  // describing the action that occured
+  var click = event.target['data-click']
+  if (click) {
+    event.preventDefault()
+    worker.postMessage(click)
+  }
+})
+
+},{"./app.js":34,"./worker.js":39,"local-links":26,"webworkify":30,"yo-yo":32}],36:[function(require,module,exports){
+var csjs = require('csjs-injectify/csjs-inject');
+
+module.exports = csjs`
+
+ .mdl-card {
+   width: 320px;
+   background: white;
+ }
+ .mdl-card__title {
+  color: #fff;
+  height: 176px;
+  background: url('img/ovnionpanel.jpg') center / cover;
+
+ }
+
+`;
+
+},{"csjs-injectify/csjs-inject":6}],37:[function(require,module,exports){
+var yo = require('yo-yo')
+var styles = require('./login-css.js')
+
+var mc = styles['mdl-card']
+var mct = styles['mdl-card__title']
+
+module.exports = function login (text) {
+  console.log(styles)
+ return (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel13 = document.createElement("div")
+bel13.setAttribute("class", "login")
+var bel12 = document.createElement("div")
+bel12.setAttribute("class", "demo-card-square " + arguments[3] + " mdl-shadow--2dp")
+var bel1 = document.createElement("div")
+bel1.setAttribute("class", arguments[2] + " ")
+var bel0 = document.createElement("h2")
+bel0.setAttribute("class", arguments[0] + "-text")
+appendChild(bel0, [arguments[1]])
+appendChild(bel1, ["\n    ",bel0,"\n  "])
+var bel9 = document.createElement("div")
+bel9.setAttribute("class", "mdl-card__supporting-text")
+var bel8 = document.createElement("form")
+bel8.setAttribute("action", "#")
+var bel4 = document.createElement("div")
+bel4.setAttribute("class", "mdl-textfield mdl-js-textfield mdl-textfield--floating-label")
+var bel2 = document.createElement("input")
+bel2.setAttribute("type", "text")
+bel2.setAttribute("id", "sample3")
+bel2.setAttribute("class", "mdl-textfield__input")
+var bel3 = document.createElement("label")
+bel3.setAttribute("class", "mdl-textfield__label")
+bel3.setAttribute("htmlFor", "sample3")
+appendChild(bel3, ["Usuario"])
+appendChild(bel4, ["\n    ",bel2,"\n    ",bel3,"\n  "])
+var bel7 = document.createElement("div")
+bel7.setAttribute("class", "mdl-textfield mdl-js-textfield mdl-textfield--floating-label")
+var bel5 = document.createElement("input")
+bel5.setAttribute("type", "text")
+bel5.setAttribute("id", "sample3")
+bel5.setAttribute("class", "mdl-textfield__input")
+var bel6 = document.createElement("label")
+bel6.setAttribute("class", "mdl-textfield__label")
+bel6.setAttribute("htmlFor", "sample3")
+appendChild(bel6, ["Contraseña"])
+appendChild(bel7, ["\n    ",bel5,"\n    ",bel6,"\n  "])
+appendChild(bel8, ["\n  ",bel4,"\n    ",bel7,"\n"])
+appendChild(bel9, ["\n",bel8,"\n  "])
+var bel11 = document.createElement("div")
+bel11.setAttribute("class", "mdl-card__actions mdl-card--border")
+var bel10 = document.createElement("a")
+bel10.setAttribute("class", "mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect")
+appendChild(bel10, ["\n     Login\n    "])
+appendChild(bel11, ["\n    ",bel10,"\n  "])
+appendChild(bel12, ["\n  ",bel1,"\n  ",bel9,"\n  ",bel11,"\n"])
+appendChild(bel13, [bel12])
+          return bel13
+        }(mct,text,mct,mc))	
 }
 
 
-},{"yo-yo":7}],10:[function(require,module,exports){
+},{"./login-css.js":36,"yo-yo":32}],38:[function(require,module,exports){
 var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
@@ -1209,12 +2410,26 @@ return el
 }
 
 
-},{"yo-yo":7}],11:[function(require,module,exports){
-var yo = require('yo-yo')
-var ModMenu = require('./modulos/menu/menu.js')
-var ModFooter = require('./modulos/footer/footer.js')
-var footer = ModFooter('Copyright')
-var state = {
+},{"yo-yo":32}],39:[function(require,module,exports){
+/* Nos permite mantener el estado completo de la aplicacion en un unico objeto que emite eventos ante cualquier modificacion */
+var createStore = require('store-emitter')
+
+/* Permite parchear el estado con datos nuevos de manera mas simple. */
+var xtend = require('xtend')
+
+/* Exportamos el modulo para que pueda ser importado con webworkify. Esto nos permite manejar todo en un unico bundle de browserify sin necesidad de compilar el worker aparte. */
+module.exports = function (self) {
+/* Qué vamos a hacer con los eventos que reciba el store.
+ * Por el momento, solo respondemos a eventos de modificacion de url. */
+function modifier ( action, state ) {
+  if (action.type === 'setUrl')
+  return xtend(state, {url : action.payload})
+}
+
+/* Creamos el store pasando como parámetros la función que lo modifica y el estado inicial. */
+var store = createStore(modifier, 
+{
+  url: '/',
   title: "El titulo",
   tabs: [
   {title: "Primer titulo", content: "Primer contenido", activeTab: true},
@@ -1225,45 +2440,17 @@ var state = {
   {title: "cuarto titulo", content: "Segundo contenido"}
   ]
 }
+)
+/* Ante cualquier tipo de modificacion en el estado, enviamos el nuevo estado al UI thread para que actualice las vistas. */
+store.on('*', function ( action, state, old ) { 
+  self.postMessage(state)
+})
 
+/* Ante cualquier evento proveniente del UI thread actualizamos el estado con los nuevos datos. */
+self.addEventListener('message', function(ev){store(ev.data)})
 
-var menu = ModMenu(state, 'Primer titulo')
-var div = (function () {
-          function appendChild (el, childs) {
-            for (var i = 0; i < childs.length; i++) {
-              var node = childs[i];
-              if (Array.isArray(node)) {
-                appendChild(el, node)
-                continue
-              }
-              if (typeof node === "number" ||
-                typeof node === "boolean" ||
-                node instanceof Date ||
-                node instanceof RegExp) {
-                node = node.toString()
-              }
+/* Inicializamos el UI thread enviandole el estado inicial. */
+ self.postMessage(store.initialState())
+}
 
-              if (typeof node === "string") {
-                if (el.lastChild && el.lastChild.nodeName === "#text") {
-                  el.lastChild.nodeValue += node
-                  continue
-                }
-                node = document.createTextNode(node)
-              }
-
-              if (node && node.nodeType) {
-                el.appendChild(node)
-              }
-            }
-          }
-          var bel1 = document.createElement("div")
-var bel0 = document.createElement("div")
-bel0.setAttribute("class", "footer")
-appendChild(bel0, [arguments[0]])
-appendChild(bel1, [arguments[1],bel0])
-          return bel1
-        }(footer,menu))
-
-document.body.appendChild(div)
-
-},{"./modulos/footer/footer.js":9,"./modulos/menu/menu.js":10,"yo-yo":7}]},{},[11]);
+},{"store-emitter":29,"xtend":31}]},{},[35]);
