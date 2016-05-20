@@ -37,5 +37,5 @@ store.on('*', function ( action, state, old ) {
 self.addEventListener('message', function(ev){store(ev.data)})
 
 /* Inicializamos el UI thread enviandole el estado inicial. */
- // self.postMessage(store.initialState())
+ // self.postMessage(store.getState())
 }
