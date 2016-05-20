@@ -26,7 +26,23 @@ worker.onmessage = function (ev) {
     return document.body.appendChild(el)
   }
   yo.update(el, newel)
-
+  if (
+      'classList' in document.documentElement &&
+      'querySelector' in document &&
+      'addEventListener' in window &&
+      'forEach' in Array.prototype) {
+    document.documentElement.classList.add('mdl-js');
+    componentHandler.upgradeAllRegistered();
+  } else {
+    /**
+     * Dummy function to avoid JS errors.
+     */
+    componentHandler.upgradeElement = function() {};
+    /**
+     * Dummy function to avoid JS errors.
+     */
+    componentHandler.register = function() {};
+  }
 /* Si la url de la barra de navegacion no coincide con la recibida, la actualizamos. */
   if (location.pathname !== url) {
     history.pushState(null, null, url)
