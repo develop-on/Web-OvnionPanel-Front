@@ -34,7 +34,6 @@ var el = yo`<div>
   </main>
 </div>
 </div>`	
-el.getElementsByClassName('mdl-layout__tab-bar')[0].firstElementChild.classList.add('is-active')
 return el
 }
 

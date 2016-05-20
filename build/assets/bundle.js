@@ -2038,13 +2038,12 @@ module.exports = [
 
 },{}],34:[function(require,module,exports){
 var login = require('./modulos/login/login.js')
-var menu = require('./modulos/menu/menu.js')
+var panel = require('./panel.js')
 var yo = require('yo-yo')
 
 module.exports = function (state) {
-  if (state.url === '/login') return login(state)
-  else if (state.url === '/menu') return menu(state)
-  else return (function () {
+  console.log(state.url)
+  if (state.url === '/') return (function () {
           function appendChild (el, childs) {
             for (var i = 0; i < childs.length; i++) {
               var node = childs[i];
@@ -2077,14 +2076,17 @@ var bel0 = document.createElement("a")
 bel0.setAttribute("href", "/login")
 appendChild(bel0, ["login"])
 var bel1 = document.createElement("a")
-bel1.setAttribute("href", "/menu")
-appendChild(bel1, ["menu"])
+bel1.setAttribute("href", "/panel")
+appendChild(bel1, ["panel"])
 appendChild(bel2, [bel0," ",bel1])
           return bel2
         }())
+    else if (state.url === '/login') return login(state)
+  else if (state.url === '/panel') return panel(state)
+  else return undefined
 }
 
-},{"./modulos/login/login.js":37,"./modulos/menu/menu.js":38,"yo-yo":32}],35:[function(require,module,exports){
+},{"./modulos/login/login.js":38,"./panel.js":40,"yo-yo":32}],35:[function(require,module,exports){
 /* Trabajamos el worker mediante webworkify. Esto resulta mas natural que compilar el worker aparte y llamarlo desde index.html. */
 var work = require('webworkify')
 var worker = work(require('./worker.js'))
@@ -2113,7 +2115,23 @@ worker.onmessage = function (ev) {
     return document.body.appendChild(el)
   }
   yo.update(el, newel)
-
+  if (
+      'classList' in document.documentElement &&
+      'querySelector' in document &&
+      'addEventListener' in window &&
+      'forEach' in Array.prototype) {
+    document.documentElement.classList.add('mdl-js');
+    componentHandler.upgradeAllRegistered();
+  } else {
+    /**
+     * Dummy function to avoid JS errors.
+     */
+    componentHandler.upgradeElement = function() {};
+    /**
+     * Dummy function to avoid JS errors.
+     */
+    componentHandler.register = function() {};
+  }
 /* Si la url de la barra de navegacion no coincide con la recibida, la actualizamos. */
   if (location.pathname !== url) {
     history.pushState(null, null, url)
@@ -2159,7 +2177,72 @@ document.body.addEventListener('click', function (event) {
   }
 })
 
-},{"./app.js":34,"./worker.js":39,"local-links":26,"webworkify":30,"yo-yo":32}],36:[function(require,module,exports){
+},{"./app.js":34,"./worker.js":41,"local-links":26,"webworkify":30,"yo-yo":32}],36:[function(require,module,exports){
+var yo = require('yo-yo')
+// var styles = require('./menu-css.js')
+
+// var mc = styles['mdl-card']
+// var mct = styles['mdl-card__title']
+
+module.exports = function footer (title) {
+return (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel8 = document.createElement("div")
+var bel7 = document.createElement("footer")
+bel7.setAttribute("class", "mdl-mini-footer")
+var bel6 = document.createElement("div")
+bel6.setAttribute("class", "mdl-mini-footer__left-section")
+var bel0 = document.createElement("div")
+bel0.setAttribute("class", "mdl-logo")
+appendChild(bel0, [arguments[0]])
+var bel5 = document.createElement("ul")
+bel5.setAttribute("class", "mdl-mini-footer__link-list")
+var bel2 = document.createElement("li")
+var bel1 = document.createElement("a")
+bel1.setAttribute("href", "#")
+appendChild(bel1, ["Help"])
+appendChild(bel2, [bel1])
+var bel4 = document.createElement("li")
+var bel3 = document.createElement("a")
+bel3.setAttribute("href", "#")
+appendChild(bel3, ["Privacy & Terms"])
+appendChild(bel4, [bel3])
+appendChild(bel5, ["\n      ",bel2,"\n      ",bel4,"\n    "])
+appendChild(bel6, ["\n    ",bel0,"\n    ",bel5,"\n  "])
+appendChild(bel7, ["\n  ",bel6,"\n"])
+appendChild(bel8, ["\n",bel7,"\n"])
+          return bel8
+        }(title))	
+}
+
+
+},{"yo-yo":32}],37:[function(require,module,exports){
 var csjs = require('csjs-injectify/csjs-inject');
 
 module.exports = csjs`
@@ -2171,13 +2254,13 @@ module.exports = csjs`
  .mdl-card__title {
   color: #fff;
   height: 176px;
-  background: url('img/ovnionpanel.jpg') center / cover;
+  background: url('/assets/img/ovnionpanel.jpg') center / cover;
 
  }
 
 `;
 
-},{"csjs-injectify/csjs-inject":6}],37:[function(require,module,exports){
+},{"csjs-injectify/csjs-inject":6}],38:[function(require,module,exports){
 var yo = require('yo-yo')
 var styles = require('./login-css.js')
 
@@ -2214,7 +2297,11 @@ module.exports = function login (text) {
               }
             }
           }
-          var bel13 = document.createElement("div")
+          var bel15 = document.createElement("div")
+bel15.setAttribute("id", "container")
+var bel14 = document.createElement("div")
+bel14.setAttribute("class", "center")
+var bel13 = document.createElement("div")
 bel13.setAttribute("class", "login")
 var bel12 = document.createElement("div")
 bel12.setAttribute("class", "demo-card-square " + arguments[3] + " mdl-shadow--2dp")
@@ -2260,12 +2347,14 @@ appendChild(bel10, ["\n     Login\n    "])
 appendChild(bel11, ["\n    ",bel10,"\n  "])
 appendChild(bel12, ["\n  ",bel1,"\n  ",bel9,"\n  ",bel11,"\n"])
 appendChild(bel13, [bel12])
-          return bel13
+appendChild(bel14, [bel13])
+appendChild(bel15, [bel14])
+          return bel15
         }(mct,text,mct,mc))	
 }
 
 
-},{"./login-css.js":36,"yo-yo":32}],38:[function(require,module,exports){
+},{"./login-css.js":37,"yo-yo":32}],39:[function(require,module,exports){
 var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
@@ -2405,12 +2494,53 @@ appendChild(bel1, ["\n      ",bel0,"\n    "])
           return bel1
         }(tab.content,idfy(tab.title)))
     })))	
-el.getElementsByClassName('mdl-layout__tab-bar')[0].firstElementChild.classList.add('is-active')
 return el
 }
 
 
-},{"yo-yo":32}],39:[function(require,module,exports){
+},{"yo-yo":32}],40:[function(require,module,exports){
+var yo = require('yo-yo')
+var ModMenu = require('./modulos/menu/menu.js')
+var ModFooter = require('./modulos/footer/footer.js')
+var footer = ModFooter('Copyright')
+
+module.exports = function (state) {return  (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel1 = document.createElement("div")
+var bel0 = document.createElement("div")
+bel0.setAttribute("class", "footer")
+appendChild(bel0, [arguments[0]])
+appendChild(bel1, [arguments[1],bel0])
+          return bel1
+        }(footer,ModMenu(state)))}
+
+},{"./modulos/footer/footer.js":36,"./modulos/menu/menu.js":39,"yo-yo":32}],41:[function(require,module,exports){
 /* Nos permite mantener el estado completo de la aplicacion en un unico objeto que emite eventos ante cualquier modificacion */
 var createStore = require('store-emitter')
 
@@ -2450,7 +2580,7 @@ store.on('*', function ( action, state, old ) {
 self.addEventListener('message', function(ev){store(ev.data)})
 
 /* Inicializamos el UI thread enviandole el estado inicial. */
- self.postMessage(store.initialState())
+ // self.postMessage(store.initialState())
 }
 
 },{"store-emitter":29,"xtend":31}]},{},[35]);

@@ -9,7 +9,7 @@ module.exports = csjs`
  .mdl-card__title {
   color: #fff;
   height: 176px;
-  background: url('img/ovnionpanel.jpg') center / cover;
+  background: url('/assets/img/ovnionpanel.jpg') center / cover;
 
  }
 
