@@ -10,7 +10,7 @@ var app = require('./app.js')
 var localLinks = require('local-links')
 
 /* El elemento base sobre el que vamos a correr yo.update */
-var el
+var el = document.getElementById('content')
 
 /* Por cada evento que recibimos del woker verificamos si existe el elemento base el.
    Si no existe, vaciamos el body y lo inicializamos.
@@ -20,11 +20,11 @@ worker.onmessage = function (ev) {
   console.log(ev)
     var newel = app(ev.data)
     var url = ev.data.url
-  if (!el) {
-        el = newel
-    document.body.innerHTML = ''
-    return document.body.appendChild(el)
-  }
+  // if (!el) {
+  //       el = newel
+  //   document.body.innerHTML = ''
+  //   return document.body.appendChild(el)
+  // }
   yo.update(el, newel)
   if (
       'classList' in document.documentElement &&
