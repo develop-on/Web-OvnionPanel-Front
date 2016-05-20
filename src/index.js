@@ -17,7 +17,6 @@ var el = document.getElementById('content')
    Si existe, ya podemos correr yo.update.
 */
 worker.onmessage = function (ev) {
-  console.log(ev)
     var newel = app(ev.data)
     var url = ev.data.url
   // if (!el) {
