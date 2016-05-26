@@ -3,7 +3,7 @@ var csjs = require('csjs');
 module.exports = csjs`
 
  .mdl-card {
-   width: 320px;
+ 	width:100%;
    background: white;
  }
  .mdl-card__title {

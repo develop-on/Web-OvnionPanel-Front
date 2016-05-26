@@ -390,7 +390,7 @@ function without(obj, unwanted) {
 
 var makeComposition = require('./composition').makeComposition;
 
-var regex = /(.*?)(\s+?)(extends\s+?)((?:.|\n)*?){(?:(?:.|\n)*?)}/g;
+var regex = /\.([^\s]+)(\s+)(extends\s+)((?:\.[^{]+))/g;
 
 module.exports = function extractExtends(css, hashed) {
   var found, matches = [];
@@ -2042,7 +2042,6 @@ var panel = require('./panel.js')
 var yo = require('yo-yo')
 
 module.exports = function (state) {
-  console.log(state.url)
   if (state.url === '/') return (function () {
           function appendChild (el, childs) {
             for (var i = 0; i < childs.length; i++) {
@@ -2081,7 +2080,7 @@ appendChild(bel1, ["panel"])
 appendChild(bel2, [bel0," ",bel1])
           return bel2
         }())
-    else if (state.url === '/login') return login(state)
+  else if (state.url === '/login') return login(state)
   else if (state.url === '/panel') return panel(state)
   else return undefined
 }
@@ -2099,21 +2098,20 @@ var app = require('./app.js')
 var localLinks = require('local-links')
 
 /* El elemento base sobre el que vamos a correr yo.update */
-var el
+var el = document.getElementById('content')
 
 /* Por cada evento que recibimos del woker verificamos si existe el elemento base el.
    Si no existe, vaciamos el body y lo inicializamos.
    Si existe, ya podemos correr yo.update.
 */
 worker.onmessage = function (ev) {
-  console.log(ev)
     var newel = app(ev.data)
     var url = ev.data.url
-  if (!el) {
-        el = newel
-    document.body.innerHTML = ''
-    return document.body.appendChild(el)
-  }
+  // if (!el) {
+  //       el = newel
+  //   document.body.innerHTML = ''
+  //   return document.body.appendChild(el)
+  // }
   yo.update(el, newel)
   if (
       'classList' in document.documentElement &&
@@ -2248,7 +2246,7 @@ var csjs = require('csjs-injectify/csjs-inject');
 module.exports = csjs`
 
  .mdl-card {
-   width: 320px;
+ 	width:100%;
    background: white;
  }
  .mdl-card__title {
@@ -2268,7 +2266,6 @@ var mc = styles['mdl-card']
 var mct = styles['mdl-card__title']
 
 module.exports = function login (text) {
-  console.log(styles)
  return (function () {
           function appendChild (el, childs) {
             for (var i = 0; i < childs.length; i++) {
@@ -2580,7 +2577,7 @@ store.on('*', function ( action, state, old ) {
 self.addEventListener('message', function(ev){store(ev.data)})
 
 /* Inicializamos el UI thread enviandole el estado inicial. */
- // self.postMessage(store.initialState())
+ // self.postMessage(store.getState())
 }
 
 },{"store-emitter":29,"xtend":31}]},{},[35]);

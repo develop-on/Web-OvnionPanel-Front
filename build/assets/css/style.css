@@ -10,10 +10,9 @@ body {
 }
 
 .center {
-	padding-top: 5%;
+    padding-top: 30px;
     margin: auto;
-    width: 23%;
-    text-align: center;
+    width: 300px;
 }
 
 .footer {
