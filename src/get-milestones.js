@@ -5,7 +5,7 @@ var JSONStream = require('JSONStream')
 var options = {
   hostname: 'api.github.com',
   port: 80,
-  path: '/repos/minedutdf/manual/issues',
+  path: '/repos/minedutdf/manual/milestones',
   method: 'GET',
   headers: {
   }
@@ -15,7 +15,7 @@ var req = http.request(options, (res) => {
   console.log(`STATUS: ${res.statusCode}`);
   console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
   res.setEncoding('utf8');
-  res.pipe(JSONStream.parse('*.title')).on('data', (obj) => {
+  res.pipe(JSONStream.parse('*')).on('data', (obj) => {
     console.log(obj)
     return store({type: 'milestones', payload: {title: obj}})
   });
