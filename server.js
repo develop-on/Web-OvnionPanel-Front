@@ -27,6 +27,7 @@ var http = require('http')
 
 var server = http.createServer(function (req, res) {
   var state = {
+  milestones: [],
   url: '',
   title: "El titulo",
   tabs: [
