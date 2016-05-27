@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/ovnion/Web-OvnionPanel-Front#readme",
   "dependencies": {
+    "JSONStream": "^1.1.1",
     "csjs": "^1.0.2",
     "ecstatic": "^1.4.1",
     "express": "^4.13.4",
