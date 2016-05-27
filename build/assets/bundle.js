@@ -2085,7 +2085,7 @@ appendChild(bel2, [bel0," ",bel1])
   else return undefined
 }
 
-},{"./modulos/login/login.js":38,"./panel.js":40,"yo-yo":32}],35:[function(require,module,exports){
+},{"./modulos/login/login.js":39,"./panel.js":41,"yo-yo":32}],35:[function(require,module,exports){
 /* Trabajamos el worker mediante webworkify. Esto resulta mas natural que compilar el worker aparte y llamarlo desde index.html. */
 var work = require('webworkify')
 var worker = work(require('./worker.js'))
@@ -2175,7 +2175,72 @@ document.body.addEventListener('click', function (event) {
   }
 })
 
-},{"./app.js":34,"./worker.js":41,"local-links":26,"webworkify":30,"yo-yo":32}],36:[function(require,module,exports){
+},{"./app.js":34,"./worker.js":42,"local-links":26,"webworkify":30,"yo-yo":32}],36:[function(require,module,exports){
+var yo = require('yo-yo')
+
+module.exports = function dialog (contrato) {
+
+return (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel8 = document.createElement("div")
+var bel0 = document.createElement("button")
+bel0.setAttribute("type", "button")
+bel0.setAttribute("class", "mdl-button show-modal")
+appendChild(bel0, ["Show Modal"])
+var bel6 = document.createElement("dialog")
+bel6.setAttribute("class", "mdl-dialog")
+var bel2 = document.createElement("div")
+bel2.setAttribute("class", "mdl-dialog__content")
+var bel1 = document.createElement("p")
+appendChild(bel1, ["\n        ",arguments[0],"\n      "])
+appendChild(bel2, ["\n      ",bel1,"\n    "])
+var bel5 = document.createElement("div")
+bel5.setAttribute("class", "mdl-dialog__actions mdl-dialog__actions--full-width")
+var bel3 = document.createElement("button")
+bel3.setAttribute("type", "button")
+bel3.setAttribute("class", "mdl-button")
+appendChild(bel3, ["Agree"])
+var bel4 = document.createElement("button")
+bel4.setAttribute("type", "button")
+bel4.setAttribute("class", "mdl-button close")
+appendChild(bel4, ["Disagree"])
+appendChild(bel5, ["\n      ",bel3,"\n      ",bel4,"\n    "])
+appendChild(bel6, ["\n    ",bel2,"\n    ",bel5,"\n  "])
+var bel7 = document.createElement("script")
+appendChild(bel7, ["\n    var dialog = document.querySelector('dialog');\n    var showModalButton = document.querySelector('.show-modal');\n    if (! dialog.showModal) {\n      dialogPolyfill.registerDialog(dialog);\n    }\n    showModalButton.addEventListener('click', function() {\n      dialog.showModal();\n    });\n    dialog.querySelector('.close').addEventListener('click', function() {\n      dialog.close();\n    });\n"])
+appendChild(bel8, ["\n\n ",bel0,"\n  ",bel6,"\n  ",bel7,"\n"])
+          return bel8
+        }(contrato))	
+}
+
+
+},{"yo-yo":32}],37:[function(require,module,exports){
 var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
@@ -2240,7 +2305,7 @@ appendChild(bel8, ["\n",bel7,"\n"])
 }
 
 
-},{"yo-yo":32}],37:[function(require,module,exports){
+},{"yo-yo":32}],38:[function(require,module,exports){
 var csjs = require('csjs-injectify/csjs-inject');
 
 module.exports = csjs`
@@ -2258,7 +2323,7 @@ module.exports = csjs`
 
 `;
 
-},{"csjs-injectify/csjs-inject":6}],38:[function(require,module,exports){
+},{"csjs-injectify/csjs-inject":6}],39:[function(require,module,exports){
 var yo = require('yo-yo')
 var styles = require('./login-css.js')
 
@@ -2351,7 +2416,7 @@ appendChild(bel15, [bel14])
 }
 
 
-},{"./login-css.js":37,"yo-yo":32}],39:[function(require,module,exports){
+},{"./login-css.js":38,"yo-yo":32}],40:[function(require,module,exports){
 var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
@@ -2495,10 +2560,12 @@ return el
 }
 
 
-},{"yo-yo":32}],40:[function(require,module,exports){
+},{"yo-yo":32}],41:[function(require,module,exports){
 var yo = require('yo-yo')
 var ModMenu = require('./modulos/menu/menu.js')
 var ModFooter = require('./modulos/footer/footer.js')
+var ModDialog = require('./modulos/dialog/dialog.js')
+var dialog = ModDialog(yo``)
 var footer = ModFooter('Copyright')
 
 module.exports = function (state) {return  (function () {
@@ -2537,7 +2604,7 @@ appendChild(bel1, [arguments[1],bel0])
           return bel1
         }(footer,ModMenu(state)))}
 
-},{"./modulos/footer/footer.js":36,"./modulos/menu/menu.js":39,"yo-yo":32}],41:[function(require,module,exports){
+},{"./modulos/dialog/dialog.js":36,"./modulos/footer/footer.js":37,"./modulos/menu/menu.js":40,"yo-yo":32}],42:[function(require,module,exports){
 /* Nos permite mantener el estado completo de la aplicacion en un unico objeto que emite eventos ante cualquier modificacion */
 var createStore = require('store-emitter')
 

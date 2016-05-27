@@ -28,6 +28,7 @@
     "http-proxy": "^1.13.3",
     "hyperstream": "^1.2.2",
     "local-links": "^1.4.0",
+    "marked": "^0.3.5",
     "material-design-lite": "^1.1.3",
     "request": "^2.72.0",
     "store-emitter": "^2.2.0",
