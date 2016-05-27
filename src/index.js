@@ -24,8 +24,9 @@ worker.onmessage = function (ev) {
   //   document.body.innerHTML = ''
   //   return document.body.appendChild(el)
   // }
-  yo.update(el, newel)
-  if (
+requestAnimationFrame( function () { 
+yo.update(el, newel)
+    if (
       'classList' in document.documentElement &&
       'querySelector' in document &&
       'addEventListener' in window &&
@@ -42,6 +43,9 @@ worker.onmessage = function (ev) {
      */
     componentHandler.register = function() {};
   }
+
+
+  })
 /* Si la url de la barra de navegacion no coincide con la recibida, la actualizamos. */
   if (location.pathname !== url) {
     history.pushState(null, null, url)
