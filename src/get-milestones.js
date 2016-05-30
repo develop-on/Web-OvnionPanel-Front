@@ -17,7 +17,8 @@ var req = http.request(options, (res) => {
   res.setEncoding('utf8');
   res.pipe(JSONStream.parse('*')).on('data', (obj) => {
     console.log(obj)
-    return store({type: 'milestones', payload: {title: obj}})
+    return store({type: 'milestones', payload: {title: obj.title,open_issues: obj.open_issues,close_issues: obj.closed_issues
+}})
   });
   res.on('end', () => {
     console.log('No more data in response.')
