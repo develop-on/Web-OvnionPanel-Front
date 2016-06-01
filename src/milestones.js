@@ -11,14 +11,14 @@ function RandomColor() {
 }
 
 module.exports = function milestones ( state ) {
-	return yo`<div>titulos<ul>${state.milestones.map(function (milestone) {
-		close_issues = yo`${milestone.close_issues} `;
-		open_issues = yo`${milestone.open_issues} `;
-		if ( close_issues == 0) {
-			issues = 0;
-		} else {
-			issues = ((parseInt(close_issues,10) * 100) / parseInt(open_issues,10))
-		}
-		return ModCircle(RandomColor(),30,'big');
-	})}</ul></div>`
+	return yo`<div>${state.milestones.map(function (milestone) {
+		// close_issues = yo`${milestone.close_issues} `;
+		// open_issues = yo`${milestone.open_issues} `;
+		// if ( close_issues == 0) {
+		// 	issues = 0;
+		// } else {
+		// 	issues = ((parseInt(close_issues,10) * 100) / parseInt(open_issues,10))
+		// }
+		return ModCircle();
+	})}</div>`
 }
