@@ -10,6 +10,11 @@ function RandomColor() {
     return color;
 }
 
+function RandomNumber() {
+	var number = Math.floor(Math.random() * 100) + 0;
+	return number;
+}
+
 module.exports = function milestones ( state ) {
 	return yo`<div>${state.milestones.map(function (milestone) {
 		// close_issues = yo`${milestone.close_issues} `;
@@ -19,6 +24,6 @@ module.exports = function milestones ( state ) {
 		// } else {
 		// 	issues = ((parseInt(close_issues,10) * 100) / parseInt(open_issues,10))
 		// }
-		return ModCircle();
+		return ModCircle(RandomNumber(),RandomColor());
 	})}</div>`
 }

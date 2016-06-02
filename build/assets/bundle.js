@@ -11307,7 +11307,7 @@ appendChild(bel3, [bel0," ",bel1," ",bel2])
   else return undefined
 }
 
-},{"./milestones.js":82,"./modulos/login/login.js":86,"./panel.js":88,"yo-yo":77}],80:[function(require,module,exports){
+},{"./milestones.js":82,"./modulos/login/login.js":87,"./panel.js":89,"yo-yo":77}],80:[function(require,module,exports){
 var http = require('http')
 var store = require('./store.js')
 var JSONStream = require('JSONStream')
@@ -11341,7 +11341,7 @@ req.on('error', (e) => {
 
 module.exports = function () { return req.end(); }
 
-},{"./store.js":89,"JSONStream":1,"http":59}],81:[function(require,module,exports){
+},{"./store.js":90,"JSONStream":1,"http":59}],81:[function(require,module,exports){
 /* Trabajamos el worker mediante webworkify. Esto resulta mas natural que compilar el worker aparte y llamarlo desde index.html. */
 var work = require('webworkify')
 var worker = work(require('./worker.js'))
@@ -11438,7 +11438,7 @@ document.body.addEventListener('click', function (event) {
   }
 })
 
-},{"./app.js":79,"./worker.js":90,"local-links":39,"webworkify":75,"yo-yo":77}],82:[function(require,module,exports){
+},{"./app.js":79,"./worker.js":91,"local-links":39,"webworkify":75,"yo-yo":77}],82:[function(require,module,exports){
 var yo = require('yo-yo')
 var ModCircle = require('./modulos/circle_bar/circle_bar.js')
 
@@ -11449,6 +11449,11 @@ function RandomColor() {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+}
+
+function RandomNumber() {
+	var number = Math.floor(Math.random() * 100) + 0;
+	return number;
 }
 
 module.exports = function milestones ( state ) {
@@ -11491,22 +11496,30 @@ appendChild(bel0, [arguments[0]])
 		// } else {
 		// 	issues = ((parseInt(close_issues,10) * 100) / parseInt(open_issues,10))
 		// }
-		return ModCircle();
+		return ModCircle(RandomNumber(),RandomColor());
 	})))
 }
 
 },{"./modulos/circle_bar/circle_bar.js":83,"yo-yo":77}],83:[function(require,module,exports){
 var yo = require('yo-yo')
-// var style = require('./circle_bar_css.js')
+ var style = require('./circle_bar_css.js')
 
-module.exports = function circle_bar () {
-// var styles = style(colorx)
-// var slice = styles['slice']  
-// var bar = styles['bar']
-// var fill = styles['fill']
-// var c100 = styles['c100'] +" "+styles['p'+progress] +" "+ styles[size] +" "+ styles['color'];
-// var progress = progress;
 
+
+module.exports = function circle_bar (porcentaje,color) {
+
+var styles = style(color)
+var progress = styles['porcentajex']
+
+
+    var val = porcentaje;
+    var r = "90";
+    var c = Math.PI*(r*2);
+   
+    if (val < 0) { val = 0;}
+    if (val > 100) { val = 100;}
+    
+    var pct = ((100-val)/100)*c;
 
  return (function () {
           function appendChild (el, childs) {
@@ -11536,18 +11549,40 @@ module.exports = function circle_bar () {
               }
             }
           }
-          var bel1 = document.createElement("div")
+          var bel3 = document.createElement("div")
 var bel0 = document.createElement("div")
-bel0.setAttribute("id", "cont")
-bel0.setAttribute("data-pct", "100")
-appendChild(bel0, ["\nasdasdasd\n\t\t"])
-appendChild(bel1, ["\n\n\t\t",bel0,"\n\n \t"])
-          return bel1
-        }())	
+bel0.setAttribute("class", arguments[0])
+appendChild(bel0, [arguments[1]])
+var bel2 = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+bel2.setAttributeNS(null, "width", "200")
+bel2.setAttributeNS(null, "stroke", arguments[3])
+bel2.setAttributeNS(null, "stroke-width", "12")
+bel2.setAttributeNS(null, "height", "200")
+var bel1 = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+bel1.setAttributeNS(null, "r", "90")
+bel1.setAttributeNS(null, "cx", "100")
+bel1.setAttributeNS(null, "cy", "100")
+bel1.setAttributeNS(null, "fill", "#E3E3E3")
+bel1.setAttributeNS(null, "stroke-dasharray", "565.48")
+bel1.setAttributeNS(null, "style", "stroke-dashoffset: " + arguments[2] + "px")
+appendChild(bel2, ["\n  ",bel1,arguments[4]])
+appendChild(bel3, ["\n ",bel0,"\n",bel2,"\n"])
+          return bel3
+        }(progress,porcentaje,pct,color,porcentaje))
 }
 
 
-},{"yo-yo":77}],84:[function(require,module,exports){
+},{"./circle_bar_css.js":84,"yo-yo":77}],84:[function(require,module,exports){
+var csjs = require('csjs-injectify/csjs-inject');
+module.exports = function (progress_color) {
+  return csjs`
+.porcentajex {
+  font-size: 40px;
+  color: ${progress_color};
+}
+`;
+}
+},{"csjs-injectify/csjs-inject":13}],85:[function(require,module,exports){
 var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
@@ -11612,7 +11647,7 @@ appendChild(bel8, ["\n",bel7,"\n"])
 }
 
 
-},{"yo-yo":77}],85:[function(require,module,exports){
+},{"yo-yo":77}],86:[function(require,module,exports){
 var csjs = require('csjs-injectify/csjs-inject');
 
 module.exports = csjs`
@@ -11630,7 +11665,7 @@ module.exports = csjs`
 
 `;
 
-},{"csjs-injectify/csjs-inject":13}],86:[function(require,module,exports){
+},{"csjs-injectify/csjs-inject":13}],87:[function(require,module,exports){
 var yo = require('yo-yo')
 var styles = require('./login-css.js')
 
@@ -11723,7 +11758,7 @@ appendChild(bel15, [bel14])
 }
 
 
-},{"./login-css.js":85,"yo-yo":77}],87:[function(require,module,exports){
+},{"./login-css.js":86,"yo-yo":77}],88:[function(require,module,exports){
 var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
@@ -11867,7 +11902,7 @@ return el
 }
 
 
-},{"yo-yo":77}],88:[function(require,module,exports){
+},{"yo-yo":77}],89:[function(require,module,exports){
 var yo = require('yo-yo')
 var ModMenu = require('./modulos/menu/menu.js')
 var ModFooter = require('./modulos/footer/footer.js')
@@ -11909,7 +11944,7 @@ appendChild(bel1, [arguments[1],bel0])
           return bel1
         }(footer,ModMenu(state)))}
 
-},{"./modulos/footer/footer.js":84,"./modulos/menu/menu.js":87,"yo-yo":77}],89:[function(require,module,exports){
+},{"./modulos/footer/footer.js":85,"./modulos/menu/menu.js":88,"yo-yo":77}],90:[function(require,module,exports){
 var createStore = require('store-emitter')
 var xtend = require('xtend')
 /* Qué vamos a hacer con los eventos que reciba el store.
@@ -11939,7 +11974,7 @@ var store = createStore(modifier,
 )
 module.exports = store
 
-},{"store-emitter":57,"xtend":76}],90:[function(require,module,exports){
+},{"store-emitter":57,"xtend":76}],91:[function(require,module,exports){
 var getMilestones = require('./get-milestones.js')
 /* Nos permite mantener el estado completo de la aplicacion en un unico objeto que emite eventos ante cualquier modificacion */
 var store = require('./store.js')
@@ -11960,4 +11995,4 @@ self.addEventListener('message', function(ev){store(ev.data)})
  // self.postMessage(store.getState())
 }
 
-},{"./get-milestones.js":80,"./store.js":89}]},{},[81]);
+},{"./get-milestones.js":80,"./store.js":90}]},{},[81]);
