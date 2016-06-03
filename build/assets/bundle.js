@@ -11307,7 +11307,7 @@ appendChild(bel3, [bel0," ",bel1," ",bel2])
   else return undefined
 }
 
-},{"./milestones.js":82,"./modulos/login/login.js":87,"./panel.js":89,"yo-yo":77}],80:[function(require,module,exports){
+},{"./milestones.js":82,"./modulos/login/login.js":89,"./panel.js":91,"yo-yo":77}],80:[function(require,module,exports){
 var http = require('http')
 var store = require('./store.js')
 var JSONStream = require('JSONStream')
@@ -11341,7 +11341,7 @@ req.on('error', (e) => {
 
 module.exports = function () { return req.end(); }
 
-},{"./store.js":90,"JSONStream":1,"http":59}],81:[function(require,module,exports){
+},{"./store.js":92,"JSONStream":1,"http":59}],81:[function(require,module,exports){
 /* Trabajamos el worker mediante webworkify. Esto resulta mas natural que compilar el worker aparte y llamarlo desde index.html. */
 var work = require('webworkify')
 var worker = work(require('./worker.js'))
@@ -11438,9 +11438,10 @@ document.body.addEventListener('click', function (event) {
   }
 })
 
-},{"./app.js":79,"./worker.js":91,"local-links":39,"webworkify":75,"yo-yo":77}],82:[function(require,module,exports){
+},{"./app.js":79,"./worker.js":93,"local-links":39,"webworkify":75,"yo-yo":77}],82:[function(require,module,exports){
 var yo = require('yo-yo')
 var ModCircle = require('./modulos/circle_bar/circle_bar.js')
+var ModCuadro = require('./modulos/cuadro/cuadro.js')
 
 function RandomColor() {
     var letters = '0123456789ABCDEF'.split('');
@@ -11448,7 +11449,23 @@ function RandomColor() {
     for (var i = 0; i < 6; i++ ) {
         color += letters[Math.floor(Math.random() * 16)];
     }
-    return color;
+    	lum = "-0.3";
+    	hex = color;
+
+    	hex = String(hex).replace(/[^0-9a-f]/gi, '');
+	if (hex.length < 6) {
+		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+	}
+	lum = lum || 0;
+
+	var rgb = "#", c, i;
+	for (i = 0; i < 3; i++) {
+		c = parseInt(hex.substr(i*2,2), 16);
+		c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+		rgb += ("00"+c).substr(c.length);
+	}
+
+	return rgb;
 }
 
 function RandomNumber() {
@@ -11489,38 +11506,164 @@ module.exports = function milestones ( state ) {
 appendChild(bel0, [arguments[0]])
           return bel0
         }(state.milestones.map(function (milestone) {
-		// close_issues = yo`${milestone.close_issues} `;
-		// open_issues = yo`${milestone.open_issues} `;
-		// if ( close_issues == 0) {
-		// 	issues = 0;
-		// } else {
-		// 	issues = ((parseInt(close_issues,10) * 100) / parseInt(open_issues,10))
-		// }
-		return ModCircle(RandomNumber(),RandomColor());
+		title = yo`${milestone.title} `;
+		close_issues = yo`${milestone.close_issues} `;
+		open_issues = yo`${milestone.open_issues} `;
+		if ( close_issues == 0) {
+			issues = 0;
+		} else {
+			issues = ((parseInt(close_issues,10) * 100) / parseInt(open_issues,10))
+		}
+		color = RandomColor();
+		return (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel0 = document.createElement("div")
+bel0.setAttribute("style", "float:left;")
+appendChild(bel0, [" ",arguments[0]," "])
+          return bel0
+        }(ModCuadro(title,ModCircle(RandomNumber(),color),color)));
 	})))
 }
 
-},{"./modulos/circle_bar/circle_bar.js":83,"yo-yo":77}],83:[function(require,module,exports){
+},{"./modulos/circle_bar/circle_bar.js":83,"./modulos/cuadro/cuadro.js":85,"yo-yo":77}],83:[function(require,module,exports){
 var yo = require('yo-yo')
- var style = require('./circle_bar_css.js')
-
-
+var style = require('./circle_bar_css.js')
 
 module.exports = function circle_bar (porcentaje,color) {
 
-var styles = style(color)
-var progress = styles['porcentajex']
+  var styles = style(color)
+  var progress = styles['porcentajex']
+  var center = styles['center']
+  var val = porcentaje;
+  var r = "90";
+  var c = Math.PI*(r*2);
+
+  if (val < 0) { val = 0;}
+  if (val > 100) { val = 100;}
+
+  var pct = ((100-val)/100)*c;
+
+  return (function () {
+          function appendChild (el, childs) {
+            for (var i = 0; i < childs.length; i++) {
+              var node = childs[i];
+              if (Array.isArray(node)) {
+                appendChild(el, node)
+                continue
+              }
+              if (typeof node === "number" ||
+                typeof node === "boolean" ||
+                node instanceof Date ||
+                node instanceof RegExp) {
+                node = node.toString()
+              }
+
+              if (typeof node === "string") {
+                if (el.lastChild && el.lastChild.nodeName === "#text") {
+                  el.lastChild.nodeValue += node
+                  continue
+                }
+                node = document.createTextNode(node)
+              }
+
+              if (node && node.nodeType) {
+                el.appendChild(node)
+              }
+            }
+          }
+          var bel4 = document.createElement("div")
+bel4.setAttribute("class", arguments[6])
+var bel0 = document.createElement("div")
+bel0.setAttribute("class", arguments[0])
+appendChild(bel0, [arguments[1],"%"])
+var bel3 = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+bel3.setAttributeNS(null, "width", "200")
+bel3.setAttributeNS(null, "height", "200")
+var bel1 = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+bel1.setAttributeNS(null, "r", "90")
+bel1.setAttributeNS(null, "stroke", "#D9D9D9")
+bel1.setAttributeNS(null, "stroke-width", "12")
+bel1.setAttributeNS(null, "cx", "100")
+bel1.setAttributeNS(null, "cy", "100")
+bel1.setAttributeNS(null, "fill", "transparent")
+bel1.setAttributeNS(null, "stroke-dasharray", "565.48")
+bel1.setAttributeNS(null, "style", "stroke-dashoffset: 0px")
+var bel2 = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+bel2.setAttributeNS(null, "r", "90")
+bel2.setAttributeNS(null, "stroke", arguments[2])
+bel2.setAttributeNS(null, "stroke-width", "12")
+bel2.setAttributeNS(null, "cx", "100")
+bel2.setAttributeNS(null, "cy", "100")
+bel2.setAttributeNS(null, "fill", "transparent")
+bel2.setAttributeNS(null, "stroke-dasharray", "565.48")
+bel2.setAttributeNS(null, "style", "stroke-dashoffset: " + arguments[3] + "px")
+appendChild(bel3, ["\n  ",bel1,arguments[4],"\n  ",bel2,arguments[5],"\n  "])
+appendChild(bel4, ["\n  ",bel0,"\n  ",bel3,"\n  "])
+          return bel4
+        }(progress,porcentaje,color,pct,porcentaje,porcentaje,center))
+}
 
 
-    var val = porcentaje;
-    var r = "90";
-    var c = Math.PI*(r*2);
-   
-    if (val < 0) { val = 0;}
-    if (val > 100) { val = 100;}
-    
-    var pct = ((100-val)/100)*c;
+},{"./circle_bar_css.js":84,"yo-yo":77}],84:[function(require,module,exports){
+var csjs = require('csjs-injectify/csjs-inject');
+module.exports = function (progress_color) {
+  return csjs`
+.porcentajex {
+  font-size: 40px;
+  color: ${progress_color};
+    position: absolute;
+  display: block;
+  height: 160px;
+  width: 160px;
+  left: 34%;
+  top: 45%;
+}
 
+.center {
+  display: block;
+  height: 200px;
+  width: 200px;
+  margin: 2em auto;
+  border-radius: 100%;
+  position: relative;
+}
+`;
+}
+},{"csjs-injectify/csjs-inject":13}],85:[function(require,module,exports){
+var yo = require('yo-yo')
+var styles = require('./cuadro_css.js')
+
+module.exports = function login (titulox,contenido,color) {
+var style = styles(color);
+var titulo = style['titulo']
+var contenidox = style['contenido']
+var cuadro = style['cuadro']
  return (function () {
           function appendChild (el, childs) {
             for (var i = 0; i < childs.length; i++) {
@@ -11549,40 +11692,48 @@ var progress = styles['porcentajex']
               }
             }
           }
-          var bel3 = document.createElement("div")
+          var bel2 = document.createElement("div")
+bel2.setAttribute("class", arguments[4])
 var bel0 = document.createElement("div")
 bel0.setAttribute("class", arguments[0])
 appendChild(bel0, [arguments[1]])
-var bel2 = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-bel2.setAttributeNS(null, "width", "200")
-bel2.setAttributeNS(null, "stroke", arguments[3])
-bel2.setAttributeNS(null, "stroke-width", "12")
-bel2.setAttributeNS(null, "height", "200")
-var bel1 = document.createElementNS("http://www.w3.org/2000/svg", "circle")
-bel1.setAttributeNS(null, "r", "90")
-bel1.setAttributeNS(null, "cx", "100")
-bel1.setAttributeNS(null, "cy", "100")
-bel1.setAttributeNS(null, "fill", "#E3E3E3")
-bel1.setAttributeNS(null, "stroke-dasharray", "565.48")
-bel1.setAttributeNS(null, "style", "stroke-dashoffset: " + arguments[2] + "px")
-appendChild(bel2, ["\n  ",bel1,arguments[4]])
-appendChild(bel3, ["\n ",bel0,"\n",bel2,"\n"])
-          return bel3
-        }(progress,porcentaje,pct,color,porcentaje))
+var bel1 = document.createElement("div")
+bel1.setAttribute("class", arguments[2])
+appendChild(bel1, [arguments[3]])
+appendChild(bel2, ["\n",bel0,"\n",bel1,"\n"])
+          return bel2
+        }(titulo,titulox,contenidox,contenido,cuadro))	
+}
+},{"./cuadro_css.js":86,"yo-yo":77}],86:[function(require,module,exports){
+var csjs = require('csjs-injectify/csjs-inject');
+module.exports = function (color) {
+  return csjs`
+.cuadro {
+margin: 10px;
+ border-style: solid;
+ border-width: 0.1em;
+border-color: #E4E4E4;
+    box-shadow: 0px 2px 10px -5px #888888;
+}
+.titulo {
+font-family: arial;
+padding: 10px;
+text-align: center;
+color: white;
+font-size: 20px;
+background-color: ${color};
 }
 
-
-},{"./circle_bar_css.js":84,"yo-yo":77}],84:[function(require,module,exports){
-var csjs = require('csjs-injectify/csjs-inject');
-module.exports = function (progress_color) {
-  return csjs`
-.porcentajex {
-  font-size: 40px;
-  color: ${progress_color};
+.contenido {
+font-family: arial;
+padding: 10px;
+color: rgba(0,0,0,.54);
+line-height: 18px;
+font-size: 15px;
 }
 `;
 }
-},{"csjs-injectify/csjs-inject":13}],85:[function(require,module,exports){
+},{"csjs-injectify/csjs-inject":13}],87:[function(require,module,exports){
 var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
@@ -11647,7 +11798,7 @@ appendChild(bel8, ["\n",bel7,"\n"])
 }
 
 
-},{"yo-yo":77}],86:[function(require,module,exports){
+},{"yo-yo":77}],88:[function(require,module,exports){
 var csjs = require('csjs-injectify/csjs-inject');
 
 module.exports = csjs`
@@ -11665,7 +11816,7 @@ module.exports = csjs`
 
 `;
 
-},{"csjs-injectify/csjs-inject":13}],87:[function(require,module,exports){
+},{"csjs-injectify/csjs-inject":13}],89:[function(require,module,exports){
 var yo = require('yo-yo')
 var styles = require('./login-css.js')
 
@@ -11758,7 +11909,7 @@ appendChild(bel15, [bel14])
 }
 
 
-},{"./login-css.js":86,"yo-yo":77}],88:[function(require,module,exports){
+},{"./login-css.js":88,"yo-yo":77}],90:[function(require,module,exports){
 var yo = require('yo-yo')
 // var styles = require('./menu-css.js')
 
@@ -11902,7 +12053,7 @@ return el
 }
 
 
-},{"yo-yo":77}],89:[function(require,module,exports){
+},{"yo-yo":77}],91:[function(require,module,exports){
 var yo = require('yo-yo')
 var ModMenu = require('./modulos/menu/menu.js')
 var ModFooter = require('./modulos/footer/footer.js')
@@ -11944,7 +12095,7 @@ appendChild(bel1, [arguments[1],bel0])
           return bel1
         }(footer,ModMenu(state)))}
 
-},{"./modulos/footer/footer.js":85,"./modulos/menu/menu.js":88,"yo-yo":77}],90:[function(require,module,exports){
+},{"./modulos/footer/footer.js":87,"./modulos/menu/menu.js":90,"yo-yo":77}],92:[function(require,module,exports){
 var createStore = require('store-emitter')
 var xtend = require('xtend')
 /* Qué vamos a hacer con los eventos que reciba el store.
@@ -11974,7 +12125,7 @@ var store = createStore(modifier,
 )
 module.exports = store
 
-},{"store-emitter":57,"xtend":76}],91:[function(require,module,exports){
+},{"store-emitter":57,"xtend":76}],93:[function(require,module,exports){
 var getMilestones = require('./get-milestones.js')
 /* Nos permite mantener el estado completo de la aplicacion en un unico objeto que emite eventos ante cualquier modificacion */
 var store = require('./store.js')
@@ -11995,4 +12146,4 @@ self.addEventListener('message', function(ev){store(ev.data)})
  // self.postMessage(store.getState())
 }
 
-},{"./get-milestones.js":80,"./store.js":90}]},{},[81]);
+},{"./get-milestones.js":80,"./store.js":92}]},{},[81]);
