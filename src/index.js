@@ -56,6 +56,9 @@ yo.update(el, newel)
 window.addEventListener('popstate', function () {
   worker.postMessage({type: 'setUrl', payload: location.pathname.toString()})
 })
+window.addEventListener('load', function () {
+  worker.postMessage({type: 'setUrl', payload: location.pathname.toString()})
+})
 
 
 // Escuchamos todos los clicks.
