@@ -1,1 +1,3 @@
-objeto('color','porcentaje','tamaño')
+##### Configuracion ########
+
+objeto('porcentaje','color')
